@@ -9,7 +9,7 @@ CC = gcc
 
 .PHONY: all main clean clone_install_raylib clone_install_raygui
 
-all: clone_install_raylib clone_install_raygui main
+all: clone_install_raylib clone_install_raygui main test
 
 main: main.c
 	$(CC) $(CFLAGS) main.c -o main -L../lib -lraylib -lm
@@ -29,7 +29,7 @@ clone_install_raylib:
 		mv libraylib.a ../../../lib/ && \
 		cp raylib.h ../../../src/.; \
 	else \
-		echo "raylib already cloned. Skipping clone."; \
+		echo "Raylib has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
 clone_install_raygui:
@@ -39,7 +39,8 @@ clone_install_raygui:
 		git clone --depth 1 https://github.com/raysan5/raygui.git && \
 		cp ../tmp/raygui/src/raygui.h ../src/.; \
 	else \
-		echo "raylib already cloned. Skipping clone."; \
+		echo "Raygui has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
-
+test:
+	echo $(OS);
