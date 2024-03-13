@@ -1,0 +1,21 @@
+// stanovené termíny
+Pomocné práce, kontrola ostatních
+od 14. 3. do 23. 3
+
+Backend - hlavní část od 14. 3. - do 17. 3.
+Frontend - od 18. 3. do 23. 3.
+Profiling od 18.3 do 23. 3
+
+
+Petr Nový - udržování a vylepšování build scriptů, vytváření a udržování konfiguračních souborů potřebných pro vývoj, kontrolování stavu ostatních částí projektu
+Vít Němec - Backend
+Michal Mandys - Frontend
+Tomáš Drdla - Profiling
+
+// přidělení úkolů
+
+Komunikačním kanálem, pro záležitosti spojené s projektem, je výhradně Discord, dále volitelně poznámky ke kódu samotnému je  přes GitHub komentáře.
+
+Systém pro správu verzí: Git
+Systém pro hosting repozitáře: GitHub (účet ivskontrola byl pozván, a přijmul pozvánku, do repozitáře Bojacnik/ivs-projekt-2)
+
