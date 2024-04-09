@@ -9,12 +9,7 @@
 #include "raygui.h"
 
 // raygui embedded styles
-#include "../tmp/raygui/styles/cyber/style_cyber.h"             // raygui style: cyber
-#include "../tmp/raygui/styles/jungle/style_jungle.h"            // raygui style: jungle
-#include "../tmp/raygui/styles/lavanda/style_lavanda.h"           // raygui style: lavanda
-#include "../tmp/raygui/styles/dark/style_dark.h"              // raygui style: dark
-#include "../tmp/raygui/styles/bluish/style_bluish.h"            // raygui style: bluish
-#include "../tmp/raygui/styles/terminal/style_terminal.h"          // raygui style: terminal
+#include "../lib/style_jungle.h"            // raygui style: jungle
 
 
 //------------------------------------------------------------------------------------
@@ -69,7 +64,7 @@ int main()
     float alphaValue = 0.5f;
 
     //int comboBoxActive = 1;
-    int visualStyleActive = 0;
+    int visualStyleActive = 1;
     int prevVisualStyleActive = 0;
 
     int toggleGroupActive = 0;
@@ -132,19 +127,10 @@ int main()
 
         if (visualStyleActive != prevVisualStyleActive)
         {
-            GuiLoadStyleDefault();
+            GuiLoadStyleJungle();
 
             switch (visualStyleActive)
-            {
-                case 0: break;      // Default style
-                case 1: GuiLoadStyleJungle(); break;
-                case 2: GuiLoadStyleLavanda(); break;
-                case 3: GuiLoadStyleDark(); break;
-                case 4: GuiLoadStyleBluish(); break;
-                case 5: GuiLoadStyleCyber(); break;
-                case 6: GuiLoadStyleTerminal(); break;
-                default: break;
-            }
+            {}
 
             GuiSetStyle(LABEL, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
 

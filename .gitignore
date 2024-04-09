@@ -175,6 +175,9 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/c,clion,cmake
 
 tmp/
+tmp/**
+lib/
+lib/**
 src/raygui.h
 src/raylib.h
 src/main
