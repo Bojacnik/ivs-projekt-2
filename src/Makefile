@@ -1,12 +1,10 @@
 CC = gcc
 #CFLAGS = -Iinclude/raygui/src/
 
-#this spits out raylib.a
-#mv libraylib.a ../../lib/.
-
-.PHONY: all main clean clone_install_raylib clone_install_raygui
 
 all: clone_install_raylib clone_install_raygui main
+
+.PHONY: all main clean clone_install_raylib clone_install_raygui clean_all
 
 main: main.c
 	$(CC) $(CFLAGS) main.c -o main -L../lib -lraylib -lm
