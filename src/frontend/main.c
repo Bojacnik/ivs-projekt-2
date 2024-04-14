@@ -1,4 +1,5 @@
-#include "raylib.h"
+#include "../raylib.h"
+#include "../backend/operation.h"
 
 //#define RAYGUI_DEBUG_RECS_BOUNDS
 //#define RAYGUI_DEBUG_TEXT_BOUNDS
@@ -6,10 +7,15 @@
 #define RAYGUI_IMPLEMENTATION
 //#define RAYGUI_CUSTOM_ICONS     // It requires providing gui_icons.h in the same directory
 //#include "gui_icons.h"          // External icons data provided, it can be generated with rGuiIcons tool
-#include "raygui.h"
+#include "../raygui.h"
 
 // raygui embedded styles
-#include "../lib/style_jungle.h"            // raygui style: jungle
+#include "../tmp/raygui/styles/cyber/style_cyber.h"             // raygui style: cyber
+#include "../tmp/raygui/styles/jungle/style_jungle.h"            // raygui style: jungle
+#include "../tmp/raygui/styles/lavanda/style_lavanda.h"           // raygui style: lavanda
+#include "../tmp/raygui/styles/dark/style_dark.h"              // raygui style: dark
+#include "../tmp/raygui/styles/bluish/style_bluish.h"            // raygui style: bluish
+#include "../tmp/raygui/styles/terminal/style_terminal.h"          // raygui style: terminal
 
 
 //------------------------------------------------------------------------------------
@@ -64,7 +70,7 @@ int main()
     float alphaValue = 0.5f;
 
     //int comboBoxActive = 1;
-    int visualStyleActive = 1;
+    int visualStyleActive = 0;
     int prevVisualStyleActive = 0;
 
     int toggleGroupActive = 0;
@@ -92,6 +98,9 @@ int main()
 
     SetTargetFPS(60);
     //--------------------------------------------------------------------------------------
+
+    char *result = op_add("1", "2");
+    fprintf(stderr, "result: %s", result);
 
     // Main game loop
     while (!exitWindow)    // Detect window close button or ESC key
@@ -127,10 +136,19 @@ int main()
 
         if (visualStyleActive != prevVisualStyleActive)
         {
-            GuiLoadStyleJungle();
+            GuiLoadStyleDefault();
 
             switch (visualStyleActive)
-            {}
+            {
+                case 0: break;      // Default style
+                case 1: GuiLoadStyleJungle(); break;
+                case 2: GuiLoadStyleLavanda(); break;
+                case 3: GuiLoadStyleDark(); break;
+                case 4: GuiLoadStyleBluish(); break;
+                case 5: GuiLoadStyleCyber(); break;
+                case 6: GuiLoadStyleTerminal(); break;
+                default: break;
+            }
 
             GuiSetStyle(LABEL, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
 
