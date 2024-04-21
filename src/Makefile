@@ -1,11 +1,15 @@
 CC = gcc
 #CFLAGS = -Iinclude/raygui/src/
 
-.PHONY: all main temp deps clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
+.PHONY: test all main temp deps clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
 
 all: deps main
 
 deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
+
+test:
+	gcc backend/operation_tests.c backend/operation.c -g3 -o tests -L../lib -lraylib -lmpfr -lgmp -lm
+	./tests
 
 tmp_folders:
 	mkdir -p ../tmp
