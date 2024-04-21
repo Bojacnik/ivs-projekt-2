@@ -34,7 +34,7 @@ int main()
     int screenHeight = 368;
     int firstStart = 1;
 
-    InitWindow(screenWidth, screenHeight, "layout_name");
+    InitWindow(screenWidth, screenHeight, "Calculator");
 
     // layout_name: controls initialization
     //----------------------------------------------------------------------------------
@@ -63,7 +63,9 @@ int main()
     bool btnMinPressed = false;
     bool btnMulPressed = false;
     bool ScreenBoxEditMode = false;
-    int ScreenBoxValue = 0;
+
+
+    char currNum[50] = "";
     //----------------------------------------------------------------------------------
 
     SetTargetFPS(60);
@@ -78,8 +80,21 @@ int main()
             if(firstStart){
                 GuiLoadStyleJungle();
                 firstStart = 0;
+                GuiSetStyle(TEXTBOX, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT);
             }
-        //----------------------------------------------------------------------------------
+
+            if(btn1Pressed){ strcat(currNum, "1"); }
+            if(btn2Pressed){ strcat(currNum, "2"); }
+            if(btn3Pressed){ strcat(currNum, "3"); }
+            if(btn4Pressed){ strcat(currNum, "4"); }
+            if(btn5Pressed){ strcat(currNum, "5"); }
+            if(btn6Pressed){ strcat(currNum, "6"); }
+            if(btn7Pressed){ strcat(currNum, "7"); }
+            if(btn8Pressed){ strcat(currNum, "8"); }
+            if(btn9Pressed){ strcat(currNum, "9"); }
+            if(btn0Pressed){ strcat(currNum, "0"); }
+
+            //----------------------------------------------------------------------------------
 
         // Draw
         //----------------------------------------------------------------------------------
@@ -89,9 +104,6 @@ int main()
 
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
-        if (WindowBox000Active)
-        {
-            WindowBox000Active = !GuiWindowBox((Rectangle){ 0, 0, 296, 368 }, "SAMPLE TEXT");
             btnDivPressed = GuiButton((Rectangle){ 224, 256, 40, 40 }, "/");
             btnEqlPressed = GuiButton((Rectangle){ 176, 304, 88, 40 }, "=");
             btn0Pressed = GuiButton((Rectangle){ 128, 304, 40, 40 }, "0");
@@ -115,8 +127,8 @@ int main()
             btnClearPressed = GuiButton((Rectangle){ 176, 112, 40, 40 }, "C");
             btnMinPressed = GuiButton((Rectangle){ 224, 160, 40, 40 }, "-");
             btnMulPressed = GuiButton((Rectangle){ 224, 208, 40, 40 }, "*");
-            if (GuiValueBox((Rectangle){ 32, 48, 232, 40 }, NULL, &ScreenBoxValue, 0, 100, ScreenBoxEditMode)) ScreenBoxEditMode = !ScreenBoxEditMode;
-        }
+            if (GuiTextBox((Rectangle){ 32, 48, 232, 40 }, currNum, 256, false)) {
+            }
         //----------------------------------------------------------------------------------
 
         EndDrawing();
