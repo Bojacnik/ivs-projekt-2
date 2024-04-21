@@ -143,6 +143,17 @@ char *op_div(char *number1, char *number2) {
 
 char *op_factorial(char *factor) {
 
+    if (!strcmp(factor, "0")) {
+        char *zeroresult = malloc(sizeof(char)*2);
+        if (zeroresult == NULL) {
+            fprintf(stderr, "Failed to allocate memory on heap!");
+            return NULL;
+        }
+        zeroresult[0] = '0';
+        zeroresult[1] = '\0';
+        return zeroresult;
+    }
+
     mpfr_t num1, num2, fac;
     mpfr_init2(num1, PRECISION_BITS);
     mpfr_init2(num2, PRECISION_BITS);

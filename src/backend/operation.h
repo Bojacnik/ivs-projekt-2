@@ -8,4 +8,3 @@ char *op_factorial(char *factor);
 char *op_pow(char *number, char *exp);
 char *op_root(char *number, char *exponent);
 char *op_sin(char *number);
-
