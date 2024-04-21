@@ -1,80 +1,80 @@
 CC = gcc
 #CFLAGS = -Iinclude/raygui/src/
 
-#this spits out raylib.a
-#mv libraylib.a ../../lib/.
+.PHONY: test all main temp deps clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
 
-#now clone raygui
-#now move raygui.h
+all: deps main
 
-#i was playing around, not doing anything currently
-#SHELL ?= shell
-#OpS ?= Windows_NT;
-#ifeq ($(OS), Windows_NT)
-#	OpS = $(OS)
-#	SHELL = cmd
-#else
-#	OpS = LINUX
-#	SHELL = shell
-#endif
+deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
+
+test:
+	gcc backend/operation_tests.c backend/operation.c -g3 -o tests -L../lib -lraylib -lmpfr -lgmp -lm
+	./tests
+
+tmp_folders:
+	mkdir -p ../tmp
+	mkdir -p ../lib
 
 
-
-.PHONY: all main clean clone_install_raylib clone_install_raygui
-
-all: clone_install_raylib clone_install_raygui main test
-
-windows: clone_install_raylib_windows clone_install_raygui_windows main
-
-main: main.c
-	$(CC) $(CFLAGS) main.c -o main -L../lib -lraylib -lm
+main: frontend/main.c
+	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
+	cp backend/operation.h frontend/.
 	./main
 
-clean:
-	rm -f main
+clone_install_gmp:
+	@if [ ! -f "../lib/libgmp.a" ] || [ ! -f "backend/gmp.h" ]; then \
+		cd ../tmp && \
+		git clone --depth 1 https://github.com/alisw/GMP.git && \
+		cd GMP && ./configure --disable-shared && \
+		make  &&\
+		mv gmp.h ../../src/backend/gmp.h && \
+		mv .libs/libgmp.a ../../lib/libgmp.a; \
+	else \
+		echo "GMP already installed. Skipping..."; \
+	fi
+
+clone_install_mpfr:
+	@if [ ! -f "../lib/libmpfr.a" ] || [ ! -f "backend/mpfr.h" ]; then \
+      	cd ../tmp && \
+      	git clone --depth 1 https://github.com/alisw/MPFR && \
+		cd MPFR && ./configure --enable-static && \
+		autoreconf -f -i && \
+		make && \
+		mv src/mpfr.h ../../src/backend/mpfr.h && \
+		mv src/.libs/libmpfr.a ../../lib/libmpfr.a;\
+   	else \
+    		echo "MPFR already installed. Skipping..."; \
+  	fi
 
 clone_install_raylib:
-	@if [ ! -d "../tmp/raylib" ]; then \
-		mkdir -p ../tmp && \
+	@if [ ! -f "../lib/libraylib.a" ] || [ ! -f "frontend/raylib.h" ]; then \
 		cd ../tmp && \
 		git clone --depth 1 https://github.com/raysan5/raylib.git && \
 		cd raylib/src && \
 		make PLATFORM=PLATFORM_DESKTOP && \
-		mkdir ../../../lib && \
 		mv libraylib.a ../../../lib/ && \
-		cp raylib.h ../../../src/.; \
+		cp raylib.h ../../../src/frontend/.; \
 	else \
 		echo "Raylib has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
-clone_install_raylib_windows:
-	IF NOT EXIST %cd%\..\lib\libralib.a ( \
-		MKDIR ..\tmp &&\
-		MKDIR ..\lib && \
-		cd %cd%\..\tmp && git clone --depth 1 https://github.com/raysan5/raylib.git && cd raylib\src && mingw32-make.exe PLATFORM=PLATFORM_DESKTOP && \
-		move %cd%\..\tmp\raylib\src\libraylib.a %cd%\..\lib && \
-		copy %cd%\..\tmp\raylib\src\raylib.h %cd%\raylib.h &&\
-		echo RAYLIB SUCCESSFULLY INSTALLED)
-
 clone_install_raygui:
-	@if [ ! -d "../tmp/raygui" ]; then \
-		mkdir -p ../tmp && \
+	@if [ ! -f "frontend/raygui.h" ] || [ ! -f "frontend/style_jungle.h" ]; then \
 		cd ../tmp && \
 		git clone --depth 1 https://github.com/raysan5/raygui.git && \
-		cp ../tmp/raygui/src/raygui.h ../src/.; \
+		cp ../tmp/raygui/src/raygui.h ../src/frontend/. && \
+		cp ../tmp/raygui/styles/jungle/style_jungle.h ../src/frontend/style_jungle.h; \
 	else \
 		echo "Raygui has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
-clone_install_raygui_windows:
-	IF NOT EXIST %cd%/raygui.h ( \
-		cd %cd%\..\tmp && git clone https://github.com/raysan5/raygui.git && \
-		copy %cd%\..\tmp\raygui\src\raygui.h %cd%\raygui.h && \
-		echo RAYGUI INSTALLED)
-
-
-cleanup_windows:
-	IF EXIST %cd%\..\tmp (\
-	RMDIR /S /Q ..\tmp &&\
-	echo FILES CLEANED UP\
-	)
+clean:
+	rm -f frontend/main
+	rm -f frontend/operation.h
+	rm -f frontend/style_jungle.h
+	rm -f raylib.h
+	rm -f raygui.h
+	rm -f backend/gmp.h
+	rm -f backend/mpfr.h
+	rm -r -f ../lib
+	rm -r -f ../tmp

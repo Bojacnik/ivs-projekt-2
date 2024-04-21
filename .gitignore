@@ -175,6 +175,9 @@ fabric.properties
 # End of https://www.toptal.com/developers/gitignore/api/c,clion,cmake
 
 tmp/
+tmp/**
+lib/
+lib/**
 src/raygui.h
 src/raylib.h
 src/main
@@ -184,3 +187,10 @@ description
 FETCH_HEAD
 HEAD
 .idea/
+
+src/backend/gmp.h
+src/backend/mpfr.h
+src/frontend/raygui.h
+src/frontend/raylib.h
+src/frontend/style_jungle.h
+src/frontend/operation.h
