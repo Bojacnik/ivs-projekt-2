@@ -17,11 +17,22 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include "style_jungle.h"
+#include "operation.h"
 
+enum operation{plus = 1, minus, mult, division, sinus, fact, root, power };
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
+void addNumberToCurrNum(char *currNum, char* number){
+    if(strlen(currNum) == 1 && currNum[0] == '0'){
+        currNum[0] = number[0];
+        currNum[1] = '\0';
+        return;
+    }
 
+    strcat(currNum, number);
+    return;
+}
 
 //------------------------------------------------------------------------------------
 // Program main entry point
@@ -49,7 +60,7 @@ int main()
     bool btn5Pressed = false;
     bool btnSinPressed = false;
     bool btn4Pressed = false;
-    bool brnSqrtPressed = false;
+    bool btnSqrtPressed = false;
     bool btnPowPressed = false;
     bool btn7Pressed = false;
     bool btn2Pressed = false;
@@ -66,6 +77,8 @@ int main()
 
 
     char currNum[50] = "";
+    char prevNum[50] = "";
+    int oper=0;
     //----------------------------------------------------------------------------------
 
     SetTargetFPS(60);
@@ -83,16 +96,137 @@ int main()
                 GuiSetStyle(TEXTBOX, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT);
             }
 
-            if(btn1Pressed){ strcat(currNum, "1"); }
-            if(btn2Pressed){ strcat(currNum, "2"); }
-            if(btn3Pressed){ strcat(currNum, "3"); }
-            if(btn4Pressed){ strcat(currNum, "4"); }
-            if(btn5Pressed){ strcat(currNum, "5"); }
-            if(btn6Pressed){ strcat(currNum, "6"); }
-            if(btn7Pressed){ strcat(currNum, "7"); }
-            if(btn8Pressed){ strcat(currNum, "8"); }
-            if(btn9Pressed){ strcat(currNum, "9"); }
-            if(btn0Pressed){ strcat(currNum, "0"); }
+            //buttons 1-9
+            if(btn1Pressed || IsKeyPressed(KEY_KP_1)){ addNumberToCurrNum(currNum, "1"); }
+            if(btn2Pressed || IsKeyPressed(KEY_KP_2)){ addNumberToCurrNum(currNum, "2"); }
+            if(btn3Pressed || IsKeyPressed(KEY_KP_3)){ addNumberToCurrNum(currNum, "3"); }
+            if(btn4Pressed || IsKeyPressed(KEY_KP_4)){ addNumberToCurrNum(currNum, "4"); }
+            if(btn5Pressed || IsKeyPressed(KEY_KP_5)){ addNumberToCurrNum(currNum, "5"); }
+            if(btn6Pressed || IsKeyPressed(KEY_KP_6)){ addNumberToCurrNum(currNum, "6"); }
+            if(btn7Pressed || IsKeyPressed(KEY_KP_7)){ addNumberToCurrNum(currNum, "7"); }
+            if(btn8Pressed || IsKeyPressed(KEY_KP_8)){ addNumberToCurrNum(currNum, "8"); }
+            if(btn9Pressed || IsKeyPressed(KEY_KP_9)){ addNumberToCurrNum(currNum, "9"); }
+            //--
+
+            //nula special ofc
+            if((btn0Pressed || IsKeyPressed(KEY_KP_0))) {
+                if(strlen(currNum) == 0){
+                    strcat(currNum, "0");
+                }
+                else if(strlen(currNum) == 1 && currNum[0] == '0'){}
+                else{
+                    strcat(currNum, "0");
+                }
+            }
+            //---
+
+            //removes newest digit
+            if(btnDelPressed || IsKeyPressed(KEY_BACKSPACE)){
+                currNum[strlen(currNum)-1] = '\0';
+            }
+            //clears current number, (FIX NOT HOW STRINGS WORK) actually no this works, because static size pole :]]]]
+            if(btnCEPressed){
+                currNum[0] = '\0';
+            }
+            //clears all,
+            if(btnClearPressed || IsKeyPressed(KEY_DELETE)){
+                currNum[0] = '\0';
+                prevNum[0] = '\0';
+                oper = 0;
+            }
+
+            //functions
+            if(btnPlusPressed || IsKeyPressed(KEY_KP_ADD)){
+                strcpy(prevNum,currNum);
+                currNum[0] = '\0';
+                oper = plus;
+            }
+            if(btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT)){
+                if(strlen(currNum) == 0){
+                    strcat(currNum,"-");
+                }else if(strlen(currNum) == 1 &&  currNum[0] == '-'){}
+                else{
+                strcpy(prevNum,currNum);
+                currNum[0] = '\0';
+                oper = minus;
+                }
+            }
+            if(btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE)){
+                strcpy(prevNum,currNum);
+                currNum[0] = '\0';
+                oper = division;
+            }
+            if(btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)){
+                strcpy(prevNum,currNum);
+                currNum[0] = '\0';
+                oper = mult;
+            }
+            if(btnFacPressed){
+                oper = fact;
+                btnEqlPressed = true;
+            }
+            if(btnSinPressed){
+                oper = sinus;
+                btnEqlPressed = true;
+            }
+            if(btnSqrtPressed){
+                strcpy(prevNum,currNum);
+                currNum[0] = '\0';
+                oper = root;
+            }
+            if(btnPowPressed){
+                strcpy(prevNum,currNum);
+                currNum[0] = '\0';
+                oper = power;
+            }
+
+
+        //pain and suffering
+            if(btnEqlPressed || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)){
+                if(oper && strlen(currNum)){
+                    char* tmpStr;
+                    switch (oper) {
+                        case plus:
+                            tmpStr = op_add(prevNum, currNum);
+                            strcpy(currNum, tmpStr);
+                            break;
+                        case minus:
+                            tmpStr = op_sub(prevNum, currNum);
+                            strcpy(currNum, tmpStr);
+                            break;
+                        case division:
+                            tmpStr = op_div(prevNum, currNum);
+                            strcpy(currNum, tmpStr);
+                            break;
+                        case mult:
+                            tmpStr = op_mul(prevNum, currNum);
+                            strcpy(currNum, tmpStr);
+                            break;
+                        case sinus:
+                            tmpStr = op_sin(currNum);
+                            strcpy(currNum, tmpStr);
+                            break;
+                        case fact:
+                            tmpStr = op_factorial(currNum);
+                            strcpy(currNum, tmpStr);
+                            break;
+                        case root:
+                            tmpStr = op_root(prevNum, currNum);
+                            strcpy(currNum, tmpStr);
+                            break;
+                        case power:
+                            tmpStr = op_root(prevNum, currNum);
+                            strcpy(currNum, tmpStr);
+                            break;
+
+                    }
+                    free(tmpStr);
+
+                    prevNum[0] = '\0';
+                    oper = 0;
+
+                }
+            }
 
             //----------------------------------------------------------------------------------
 
@@ -114,7 +248,7 @@ int main()
             btn5Pressed = GuiButton((Rectangle){ 128, 208, 40, 40 }, "5");
             btnSinPressed = GuiButton((Rectangle){ 32, 160, 40, 40 }, "Sin");
             btn4Pressed = GuiButton((Rectangle){ 80, 208, 40, 40 }, "4");
-            brnSqrtPressed = GuiButton((Rectangle){ 32, 208, 40, 40 }, "Sq");
+            btnSqrtPressed = GuiButton((Rectangle){ 32, 208, 40, 40 }, "Root");
             btnPowPressed = GuiButton((Rectangle){ 32, 256, 40, 40 }, "x^y");
             btn7Pressed = GuiButton((Rectangle){ 80, 160, 40, 40 }, "7");
             btn2Pressed = GuiButton((Rectangle){ 128, 256, 40, 40 }, "2");
