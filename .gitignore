@@ -193,3 +193,4 @@ src/backend/mpfr.h
 src/frontend/raygui.h
 src/frontend/raylib.h
 src/frontend/style_jungle.h
+src/frontend/operation.h
