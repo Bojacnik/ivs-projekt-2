@@ -3,8 +3,6 @@ Prostredi
 
 Linux - Manjaro 64bit
 
-Windows 64bit
-
 Autori
 ------
 

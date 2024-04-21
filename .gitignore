@@ -192,3 +192,4 @@ src/backend/gmp.h
 src/backend/mpfr.h
 src/frontend/raygui.h
 src/frontend/raylib.h
+src/frontend/style_jungle.h
