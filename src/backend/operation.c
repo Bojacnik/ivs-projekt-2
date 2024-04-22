@@ -33,7 +33,7 @@ char *convertToString(mpfr_t number) {
     removeTrailingZeros(str);
     if(strlen(str) >= 10){
         mpfr_snprintf(str, 100, "%.5Re", number);
-    }else{
+    } else{
         mpfr_snprintf(str, 100, "%.5Rf", number);
         removeTrailingZeros(str);
     }
@@ -45,110 +45,105 @@ char *convertToString(mpfr_t number) {
 /**
  *
  *
- * @param number1 First number string for addition
- * @param number2 Second number string for addition
+ * @param addend1 First number string for addition
+ * @param addend2 Second number string for addition
  * @return result Resulting number as string
  */
-char *op_add(char *number1, char *number2) {
-    mpfr_t num1, num2;
-    mpfr_init2(num1, PRECISION_BITS);
-    mpfr_init2(num2, PRECISION_BITS);
+char *op_add(char *addend1, char *addend2) {
+    mpfr_t _addend1, _addend2;
+    mpfr_init2(_addend1, PRECISION_BITS);
+    mpfr_init2(_addend2, PRECISION_BITS);
 
-    mpfr_init_set_str(num1, number1, 10, rounding);
-    mpfr_init_set_str(num2, number2, 10, rounding);
+    mpfr_init_set_str(_addend1, addend1, 10, rounding);
+    mpfr_init_set_str(_addend2, addend2, 10, rounding);
 
-    mpfr_t additionResult;
-    mpfr_init2(additionResult, PRECISION_BITS);
+    mpfr_t summand;
+    mpfr_init2(summand, PRECISION_BITS);
+    mpfr_add(summand, _addend1, _addend2, rounding);
 
-    mpfr_add(additionResult, num1, num2, rounding);
-
-    char *result = convertToString(additionResult);
-    mpfr_clears(num1, num2, additionResult, NULL);
-
+    char *result = convertToString(summand);
+    mpfr_clears(_addend1, _addend2, summand, NULL);
     return result;
 }
 
 /**
  *
- *
- * @param number1 First number string for addition
- * @param number2 Second number string for addition
- * @return result Resulting number as string
+ * @brief subtraction for two numbers
+ * @param minuend Number that is going to be subtracted from
+ * @param subtrahend Number that will be used to subtract from minuend
+ * @return result Product of the minuend and subtrahend
  */
-char *op_sub(char *number1, char *number2) {
-    mpfr_t num1, num2;
-    mpfr_init2(num1, PRECISION_BITS);
-    mpfr_init2(num2, PRECISION_BITS);
+char *op_sub(char *minuend, char *subtrahend) {
+    mpfr_t _minuend, _subtrahend;
+    mpfr_init2(_minuend, PRECISION_BITS);
+    mpfr_init2(_subtrahend, PRECISION_BITS);
 
-    mpfr_init_set_str(num1, number1, 10, rounding);
-    mpfr_init_set_str(num2, number2, 10, rounding);
+    mpfr_init_set_str(_minuend, minuend, 10, rounding);
+    mpfr_init_set_str(_subtrahend, subtrahend, 10, rounding);
 
-    mpfr_t additionResult;
-    mpfr_init2(additionResult, PRECISION_BITS);
+    mpfr_t product;
+    mpfr_init2(product, PRECISION_BITS);
+    mpfr_sub(product, _minuend, _subtrahend, rounding);
 
-    mpfr_sub(additionResult, num1, num2, rounding);
-
-    char *result = convertToString(additionResult);
-
-    mpfr_clears(num1, num2, additionResult, NULL);
-
+    char *result = convertToString(product);
+    mpfr_clears(_minuend, _subtrahend, product, NULL);
     return result;
 }
 
 /**
  *
- *
- * @param number1 First number string for addition
- * @param number2 Second number string for addition
- * @return result Resulting number as string
+ * @brief multiplication for two numbers
+ * @param multiplicand Number that will be multiplied by the @param multiplier
+ * @param multiplier Number that will multiply the @param multiplicand
+ * @return result Product of the multiplicand and multiplier
  */
-char *op_mul(char *number1, char *number2) {
-    mpfr_t num1, num2;
-    mpfr_init2(num1, PRECISION_BITS);
-    mpfr_init2(num2, PRECISION_BITS);
+char *op_mul(char *multiplicand, char *multiplier) {
+    mpfr_t _multiplicand, _multiplier;
+    mpfr_init2(_multiplicand, PRECISION_BITS);
+    mpfr_init2(_multiplier, PRECISION_BITS);
+    
+    mpfr_init_set_str(_multiplicand, multiplicand, 10, rounding);
+    mpfr_init_set_str(_multiplier, multiplier, 10, rounding);
 
+    mpfr_t product;
+    mpfr_init2(product, PRECISION_BITS);
+    mpfr_mul(product, _multiplicand, _multiplier, rounding);
 
-    mpfr_init_set_str(num1, number1, 10, rounding);
-    mpfr_init_set_str(num2, number2, 10, rounding);
-
-    mpfr_t additionResult;
-    mpfr_init2(additionResult, PRECISION_BITS);
-
-    mpfr_mul(additionResult, num1, num2, rounding);
-
-    char *result = convertToString(additionResult);
-    mpfr_clears(num1, num2, additionResult, NULL);
-
+    char *result = convertToString(product);
+    mpfr_clears(_multiplicand, _multiplier, product, NULL);
     return result;
 }
 
 /**
  *
- *
- * @param number1 First number string for addition
- * @param number2 Second number string for divisor
- * @return result Resulting number as string
+ * @brief division for two numbers
+ * @param dividend Number that will be divided by the @param divisor
+ * @param divisor Number that will divide @param dividend
+ * @return result Quotient as string
  */
-char *op_div(char *number1, char *number2) {
-    mpfr_t num1, num2;
-    mpfr_init2(num1, PRECISION_BITS);
-    mpfr_init2(num2, PRECISION_BITS);
+char *op_div(char *dividend, char *divisor) {
+    mpfr_t _dividend, _divisor;
+    mpfr_init2(_dividend, PRECISION_BITS);
+    mpfr_init2(_divisor, PRECISION_BITS);
 
+    mpfr_init_set_str(_dividend, dividend, 10, rounding);
+    mpfr_init_set_str(_divisor, divisor, 10, rounding);
 
-    mpfr_init_set_str(num1, number1, 10, rounding);
-    mpfr_init_set_str(num2, number2, 10, rounding);
+    mpfr_t quotient;
+    mpfr_init2(quotient, PRECISION_BITS);
+    mpfr_div(quotient, _dividend, _divisor, rounding);
 
-    mpfr_t additionResult;
-    mpfr_init2(additionResult, PRECISION_BITS);
-
-    mpfr_div(additionResult, num1, num2, rounding);
-
-    char *str = convertToString(additionResult);
-    mpfr_clears(num1, num2, additionResult, NULL);
-
+    char *str = convertToString(quotient);
+    mpfr_clears(_dividend, _divisor, quotient, NULL);
     return str;
 }
 
+/**
+ *
+ * @brief math factorial
+ * @param factor will determine to where we shall multiply numbers for example factor of five will result in 120
+ * @return result resulting factorial of @param factor
+ */
 char *op_factorial(char *factor) {
 
     if (!strcmp(factor, "0")) {
@@ -157,7 +152,7 @@ char *op_factorial(char *factor) {
             fprintf(stderr, "Failed to allocate memory on heap!");
             return NULL;
         }
-        zeroresult[0] = '0';
+        zeroresult[0] = '1';
         zeroresult[1] = '\0';
         return zeroresult;
     }
@@ -179,57 +174,72 @@ char *op_factorial(char *factor) {
     char* str = convertToString(num2);
 
     mpfr_clears(num1, num2, fac, NULL);
-
     return str;
 
 }
 
-char *op_pow(char* number, char* exp) {
-    mpfr_t num1, num2;
+/**
+ *
+ * @brief @param exponent power of @param base
+ * @param base will be exponentiated by @param exponent
+ * @param exponent will be used to exponentiate @param base
+ * @return result is the exponentiated @param base by @param exponent
+ */
+char *op_pow(char* base, char* exponent) {
+    mpfr_t _base, _exponent;
+    mpfr_init2(_base, PRECISION_BITS);
+    mpfr_init2(_exponent, PRECISION_BITS);
 
-    mpfr_init_set_str(num1, number, 10, rounding);
-    mpfr_init_set_str(num2, exp, 10, rounding);
+    mpfr_init_set_str(_base, base, 10, rounding);
+    mpfr_init_set_str(_exponent, exponent, 10, rounding);
 
-    mpfr_pow(num1, num1, num2, rounding);
-
-    char* str = convertToString(num1);
-
+    mpfr_pow(_base, _base, _exponent, rounding);
+    char* str = convertToString(_base);
     return str;
 }
 
-char *op_root(char *number, char *exponent) {
-    mpfr_t num1, num2, res, one_over;
+/**
+ *
+ * @brief general root
+ * @param radicand will be exponentiated by @param index
+ * @param index will be used to exponentiate @param base
+ * @return result from root with index of @param index from @param radicand
+ */
+char *op_root(char *radicand, char *index) {
+    mpfr_t _radicand, num2, root, one_over;
 
-    mpfr_init_set_str(num1, number, 10, rounding);
-    mpfr_init_set_str(num2, exponent, 10, rounding);
+    mpfr_init_set_str(_radicand, radicand, 10, rounding);
+    mpfr_init_set_str(num2, index, 10, rounding);
 
-    mpfr_init2(res, PRECISION_BITS);
+    mpfr_init2(root, PRECISION_BITS);
     mpfr_init2(one_over, PRECISION_BITS);
 
     mpfr_set_d(one_over, 1, rounding);
     mpfr_div(one_over, one_over, num2, rounding);
 
-    mpfr_pow(res, num1, one_over, rounding);
+    mpfr_pow(root, _radicand, one_over, rounding);
 
-
-    char *result = convertToString(res);
-
-    mpfr_clears(num1, num2, one_over, NULL);
-
+    char *result = convertToString(root);
+    mpfr_clears(_radicand, num2, one_over, NULL);
     return result;
 }
 
 
-//rads!
-char *op_sin(char *number) {
-    mpfr_t num1;
-    mpfr_init_set_str(num1, number, 10, rounding);
+/**
+ *
+ * @brief general root
+ * @param argument variable in radians used for sin
+ * @return result resulting number from sin(@param argument)
+ */
+char *op_sin(char *argument) {
+    mpfr_t _argument;
+    mpfr_init2(_argument, PRECISION_BITS);
 
-    mpfr_sin(num1, num1, rounding);
+    mpfr_init_set_str(_argument, argument, 10, rounding);
 
-    char *result = convertToString(num1);
+    mpfr_sin(_argument, _argument, rounding);
 
-    mpfr_clear(num1);
-
+    char *result = convertToString(_argument);
+    mpfr_clear(_argument);
     return result;
 }
