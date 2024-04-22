@@ -3,7 +3,7 @@ CC = gcc
 
 .PHONY: test all main temp deps clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
 
-all: deps main
+all: deps test main
 
 deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
 
