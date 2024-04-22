@@ -3,7 +3,7 @@ CC = gcc
 
 .PHONY: test all main temp deps clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
 
-all: deps test main
+all: deps main
 
 deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
 
@@ -17,8 +17,8 @@ tmp_folders:
 
 
 main: frontend/main.c
-	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
 	cp backend/operation.h frontend/.
+	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
 	./main
 
 clone_install_gmp:

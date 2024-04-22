@@ -20,13 +20,16 @@
 #include "operation.h"
 
 enum operation{plus = 1, minus, mult, division, sinus, fact, root, power };
+short errState = 0;
+
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
 void addNumberToCurrNum(char *currNum, char* number){
-    if(strlen(currNum) == 1 && currNum[0] == '0'){
+    if((strlen(currNum) == 1 && currNum[0] == '0') || errState){
         currNum[0] = number[0];
         currNum[1] = '\0';
+        errState = 0;
         return;
     }
 
@@ -113,10 +116,11 @@ int main()
 
             //nula special ofc
             if((btn0Pressed || IsKeyPressed(KEY_KP_0))) {
-                if(strlen(currNum) == 0){
-                    strcat(currNum, "0");
+                if(strlen(currNum) == 0 || errState){
+                    strcpy(currNum, "0");
                 }
                 else if(strlen(currNum) == 1 && currNum[0] == '0'){}
+                else if(strlen(currNum) == 1 && currNum[0] == '-') strcpy(currNum, "0");
                 else{
                     strcat(currNum, "0");
                 }
@@ -148,15 +152,16 @@ int main()
                 oper = plus;
                 hasDecimal = 0;
             }
-            if((btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT))  && strlen(currNum) != 0){
-                if(strlen(currNum) == 0){
-                    strcat(currNum,"-");
+            if((btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT))){
+                if(strlen(currNum) == 0 || errState){
+                    strcpy(currNum,"-");
+                    errState = 0;
                 }else if(strlen(currNum) == 1 &&  currNum[0] == '-'){}
                 else{
-                strcpy(prevNum,currNum);
-                currNum[0] = '\0';
-                oper = minus;
-                hasDecimal = 0;
+                    strcpy(prevNum,currNum);
+                    currNum[0] = '\0';
+                    oper = minus;
+                    hasDecimal = 0;
                 }
             }
             if((btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE))  && strlen(currNum) != 0){
@@ -199,9 +204,9 @@ int main()
             }
 
 
-        //pain and suffering
+            //pain and suffering
             if(btnEqlPressed || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)){
-                if(oper && strlen(currNum)){
+                if(strlen(currNum) && !errState){
                     char* tmpStr;
                     switch (oper) {
                         case plus:
@@ -238,12 +243,17 @@ int main()
                             break;
                         default:
                             fprintf(stderr ,"no operation error, closing");
+#ifdef DEBUG
                             exit(1);
+#elif
                     }
 
                     if(strstr(currNum, ".") != NULL) hasDecimal = 1;
                     else hasDecimal = 0;
 
+                    if(strstr(currNum, "Err") != NULL){
+                        errState = 1;
+                    }
                     free(tmpStr);
 
                     prevNum[0] = '\0';
@@ -293,7 +303,6 @@ int main()
         EndDrawing();
         //----------------------------------------------------------------------------------
     }
-
     // De-Initialization
     //--------------------------------------------------------------------------------------
     CloseWindow();        // Close window and OpenGL context

@@ -2,12 +2,32 @@
 #include <math.h>
 #include <malloc.h>
 #include <string.h>
+#include "stdlib.h"
 
 #define MAX_PRECISION_DEC 30
 
 #define PRECISION_DECIMALS 100
 #define PRECISION_BITS ceil(PRECISION_DECIMALS * log2(10))
 #define rounding MPFR_RNDZ
+
+
+void remove_substring(char *str, const char *sub) {
+    // Find the position of the substring in the string
+    char *found = strstr(str, sub);
+    if (found != NULL) {
+        // Calculate the length of the substring
+        size_t sub_length = strlen(sub);
+
+        // Calculate the length of the remaining string after removing the substring
+        size_t remaining_length = strlen(found + sub_length);
+
+        // Shift the characters after the substring to cover it up
+        memmove(found, found + sub_length, remaining_length + 1);
+
+        // Adjust the length of the string
+        str = realloc(str, remaining_length + 1);
+    }
+}
 
 void removeTrailingZeros(char* str) {
     int len = strlen(str);
@@ -37,6 +57,8 @@ char *convertToString(mpfr_t number) {
         mpfr_snprintf(str, 100, "%.5Rf", number);
         removeTrailingZeros(str);
     }
+
+    remove_substring(str, "e+00");
 
     return str;
 }
@@ -101,7 +123,7 @@ char *op_mul(char *multiplicand, char *multiplier) {
     mpfr_t _multiplicand, _multiplier;
     mpfr_init2(_multiplicand, PRECISION_BITS);
     mpfr_init2(_multiplier, PRECISION_BITS);
-    
+
     mpfr_init_set_str(_multiplicand, multiplicand, 10, rounding);
     mpfr_init_set_str(_multiplier, multiplier, 10, rounding);
 
@@ -146,17 +168,11 @@ char *op_div(char *dividend, char *divisor) {
  */
 char *op_factorial(char *factor) {
 
-    if (!strcmp(factor, "0")) {
-        char *zeroresult = malloc(sizeof(char)*2);
-        if (zeroresult == NULL) {
-            fprintf(stderr, "Failed to allocate memory on heap!");
-            return NULL;
-        }
-        zeroresult[0] = '1';
-        zeroresult[1] = '\0';
-        return zeroresult;
+    if(factor[0] == '-'){
+        char* str = malloc(102);
+        strcpy(str, "Err");
+        return str;
     }
-
     mpfr_t num1, num2, fac;
     mpfr_init2(num1, PRECISION_BITS);
     mpfr_init2(num2, PRECISION_BITS);
