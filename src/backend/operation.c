@@ -52,7 +52,11 @@ void removeTrailingZeros(char* str) {
         }
     }
 }
-
+/**
+ * @brief converts mpfr number to a string
+ * @param number to convert
+ * @return number in form of string
+ */
 char *convertToString(mpfr_t number) {
     char *str = malloc(sizeof(char)*(102));
     if (str == NULL) {
