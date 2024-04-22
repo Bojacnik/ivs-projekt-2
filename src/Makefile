@@ -1,7 +1,7 @@
 CC = gcc
 #CFLAGS = -Iinclude/raygui/src/
 
-.PHONY: test all main temp deps clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
+.PHONY: test all main temp deps profiling clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
 
 all: deps main
 
@@ -28,6 +28,11 @@ main: frontend/main.c
 	cp backend/operation.h frontend/.
 	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
 	./main
+
+profiling: ../profiling/profiling.c
+	$(CC) ../profiling/profiling.c -o profiling -pg -lm
+	./profiling < ../tmp/testp.txt
+	gprof profiling gmon.out > analysis.txt
 
 clone_install_gmp:
 	@if [ ! -f "../lib/libgmp.a" ] || [ ! -f "backend/gmp.h" ]; then \
