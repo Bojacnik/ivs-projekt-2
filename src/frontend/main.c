@@ -25,6 +25,10 @@ short errState = 0;
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
+///
+/// \brief helper adds number to currNum string and handles edge cases
+/// \param currNum array that hold current number you're inputing
+/// \param number number you want to input
 void addNumberToCurrNum(char *currNum, char* number){
     if((strlen(currNum) == 1 && currNum[0] == '0') || errState){
         currNum[0] = number[0];
@@ -101,7 +105,7 @@ int main()
             }
 
 
-            //buttons 1-9
+            //buttons 1-9 handles input
             if(btn1Pressed || IsKeyPressed(KEY_KP_1)){ addNumberToCurrNum(currNum, "1"); }
             if(btn2Pressed || IsKeyPressed(KEY_KP_2)){ addNumberToCurrNum(currNum, "2"); }
             if(btn3Pressed || IsKeyPressed(KEY_KP_3)){ addNumberToCurrNum(currNum, "3"); }
@@ -113,7 +117,7 @@ int main()
             if(btn9Pressed || IsKeyPressed(KEY_KP_9)){ addNumberToCurrNum(currNum, "9"); }
             //--
 
-            //nula special ofc
+            //zero input special handling
             if((btn0Pressed || IsKeyPressed(KEY_KP_0))) {
                 if(strlen(currNum) == 0 || errState){
                     strcpy(currNum, "0");
@@ -126,17 +130,17 @@ int main()
             }
             //---
 
-            //removes newest digit
+            //removes newest char
             if(btnDelPressed || IsKeyPressed(KEY_BACKSPACE)){
                 if(currNum[strlen(currNum)-1] == '.') hasDecimal = 0;
                 currNum[strlen(currNum)-1] = '\0';
             }
-            //clears current number, (FIX NOT HOW STRINGS WORK) actually no this works, because static size pole :]]]]
+            //clears current number
             if(btnCEPressed){
                 currNum[0] = '\0';
                 hasDecimal = 0;
             }
-            //clears all,
+            //clears all numbers
             if(btnClearPressed || IsKeyPressed(KEY_DELETE)){
                 currNum[0] = '\0';
                 prevNum[0] = '\0';
@@ -145,14 +149,14 @@ int main()
             }
 
             //functions
-            if(strcmp(currNum, "-")){
-                if((btnPlusPressed || IsKeyPressed(KEY_KP_ADD)) && strlen(currNum) != 0){
+            if(strcmp(currNum, "-")){ //doesnt perform any functions if currNum is only a -
+                if((btnPlusPressed || IsKeyPressed(KEY_KP_ADD)) && strlen(currNum) != 0){ //adding
                     strcpy(prevNum,currNum);
                     currNum[0] = '\0';
                     oper = plus;
                     hasDecimal = 0;
                 }
-                if((btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT))){
+                if((btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT))){ //subtract
                     if(strlen(currNum) == 0 || errState){
                         strcpy(currNum,"-");
                         errState = 0;
@@ -164,41 +168,41 @@ int main()
                         hasDecimal = 0;
                     }
                 }
-                if((btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE))  && strlen(currNum) != 0){
+                if((btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE))  && strlen(currNum) != 0){ //divide
                     strcpy(prevNum,currNum);
                     currNum[0] = '\0';
                     oper = division;
                     hasDecimal = 0;
                 }
-                if((btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)) && strlen(currNum) != 0){
+                if((btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)) && strlen(currNum) != 0){ //multiply
                     strcpy(prevNum,currNum);
                     currNum[0] = '\0';
                     oper = mult;
                     hasDecimal = 0;
                 }
-                if(btnFacPressed && strlen(currNum) != 0){
+                if(btnFacPressed && strlen(currNum) != 0){ //factorial
                     oper = fact;
                     btnEqlPressed = true;
                 }
-                if(btnSinPressed && strlen(currNum) != 0){
+                if(btnSinPressed && strlen(currNum) != 0){ //sin func
                     if(strcmp(currNum, "-")){
                         oper = sinus;
                         btnEqlPressed = true;
                     }
                 }
-                if(btnSqrtPressed && strlen(currNum) != 0){
+                if(btnSqrtPressed && strlen(currNum) != 0){ //root
                         strcpy(prevNum,currNum);
                         currNum[0] = '\0';
                         oper = root;
                         hasDecimal = 0;
                 }
-                if(btnPowPressed && strlen(currNum) != 0){
+                if(btnPowPressed && strlen(currNum) != 0){ //power
                     strcpy(prevNum,currNum);
                     currNum[0] = '\0';
                     oper = power;
                     hasDecimal = 0;
                 }
-                if(btnDecPressed || IsKeyPressed(KEY_PERIOD ) || IsKeyPressed(KEY_KP_DECIMAL)){
+                if(btnDecPressed || IsKeyPressed(KEY_PERIOD ) || IsKeyPressed(KEY_KP_DECIMAL)){ //decimal period
                     if(!hasDecimal && strlen(currNum) != 0){
                         strcat(currNum, ".");
                         hasDecimal = 1;
@@ -208,7 +212,7 @@ int main()
 
 
             //pain and suffering
-            if(btnEqlPressed || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)){
+            if(btnEqlPressed || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)){ //calculates final
                 if(oper && strlen(currNum) && !errState){
                     char* tmpStr;
                     switch (oper) {
