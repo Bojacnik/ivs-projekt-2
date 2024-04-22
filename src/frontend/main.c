@@ -49,7 +49,6 @@ int main()
 
     // layout_name: controls initialization
     //----------------------------------------------------------------------------------
-    bool WindowBox000Active = true;
     bool btnDivPressed = false;
     bool btnEqlPressed = false;
     bool btn0Pressed = false;
@@ -79,6 +78,8 @@ int main()
     char currNum[50] = "";
     char prevNum[50] = "";
     int oper=0;
+
+    short hasDecimal = 0;
     //----------------------------------------------------------------------------------
 
     SetTargetFPS(60);
@@ -122,6 +123,7 @@ int main()
 
             //removes newest digit
             if(btnDelPressed || IsKeyPressed(KEY_BACKSPACE)){
+                if(currNum[strlen(currNum)-1] == '.') hasDecimal = 0;
                 currNum[strlen(currNum)-1] = '\0';
             }
             //clears current number, (FIX NOT HOW STRINGS WORK) actually no this works, because static size pole :]]]]
@@ -140,6 +142,7 @@ int main()
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = plus;
+                hasDecimal = 0;
             }
             if(btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT)){
                 if(strlen(currNum) == 0){
@@ -149,17 +152,20 @@ int main()
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = minus;
+                hasDecimal = 0;
                 }
             }
             if(btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE)){
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = division;
+                hasDecimal = 0;
             }
             if(btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)){
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = mult;
+                hasDecimal = 0;
             }
             if(btnFacPressed){
                 oper = fact;
@@ -173,11 +179,19 @@ int main()
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = root;
+                hasDecimal = 0;
             }
             if(btnPowPressed){
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = power;
+                hasDecimal = 0;
+            }
+            if(btnDecPressed || IsKeyPressed(KEY_PERIOD ) || IsKeyPressed(KEY_KP_DECIMAL)){
+                if(!hasDecimal && strlen(currNum) != 0){
+                    strcat(currNum, ".");
+                    hasDecimal = 1;
+                }
             }
 
 
@@ -220,6 +234,10 @@ int main()
                             break;
 
                     }
+
+                    if(strstr(currNum, ".") != NULL) hasDecimal = 1;
+                    else hasDecimal = 0;
+
                     free(tmpStr);
 
                     prevNum[0] = '\0';
