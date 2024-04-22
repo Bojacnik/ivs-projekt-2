@@ -75,7 +75,6 @@ int main()
     bool btnClearPressed = false;
     bool btnMinPressed = false;
     bool btnMulPressed = false;
-    bool ScreenBoxEditMode = false;
 
 
     char currNum[50] = "";
@@ -146,67 +145,71 @@ int main()
             }
 
             //functions
-            if((btnPlusPressed || IsKeyPressed(KEY_KP_ADD)) && strlen(currNum) != 0){
-                strcpy(prevNum,currNum);
-                currNum[0] = '\0';
-                oper = plus;
-                hasDecimal = 0;
-            }
-            if((btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT))){
-                if(strlen(currNum) == 0 || errState){
-                    strcpy(currNum,"-");
-                    errState = 0;
-                }else if(strlen(currNum) == 1 &&  currNum[0] == '-'){}
-                else{
+            if(strcmp(currNum, "-")){
+                if((btnPlusPressed || IsKeyPressed(KEY_KP_ADD)) && strlen(currNum) != 0){
                     strcpy(prevNum,currNum);
                     currNum[0] = '\0';
-                    oper = minus;
+                    oper = plus;
                     hasDecimal = 0;
                 }
-            }
-            if((btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE))  && strlen(currNum) != 0){
-                strcpy(prevNum,currNum);
-                currNum[0] = '\0';
-                oper = division;
-                hasDecimal = 0;
-            }
-            if((btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)) && strlen(currNum) != 0){
-                strcpy(prevNum,currNum);
-                currNum[0] = '\0';
-                oper = mult;
-                hasDecimal = 0;
-            }
-            if(btnFacPressed && strlen(currNum) != 0){
-                oper = fact;
-                btnEqlPressed = true;
-            }
-            if(btnSinPressed && strlen(currNum) != 0){
-                oper = sinus;
-                btnEqlPressed = true;
-            }
-            if(btnSqrtPressed && strlen(currNum) != 0){
-                strcpy(prevNum,currNum);
-                currNum[0] = '\0';
-                oper = root;
-                hasDecimal = 0;
-            }
-            if(btnPowPressed && strlen(currNum) != 0){
-                strcpy(prevNum,currNum);
-                currNum[0] = '\0';
-                oper = power;
-                hasDecimal = 0;
-            }
-            if(btnDecPressed || IsKeyPressed(KEY_PERIOD ) || IsKeyPressed(KEY_KP_DECIMAL)){
-                if(!hasDecimal && strlen(currNum) != 0){
-                    strcat(currNum, ".");
-                    hasDecimal = 1;
+                if((btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT))){
+                    if(strlen(currNum) == 0 || errState){
+                        strcpy(currNum,"-");
+                        errState = 0;
+                    }else if(strlen(currNum) == 1 &&  currNum[0] == '-'){}
+                    else{
+                        strcpy(prevNum,currNum);
+                        currNum[0] = '\0';
+                        oper = minus;
+                        hasDecimal = 0;
+                    }
+                }
+                if((btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE))  && strlen(currNum) != 0){
+                    strcpy(prevNum,currNum);
+                    currNum[0] = '\0';
+                    oper = division;
+                    hasDecimal = 0;
+                }
+                if((btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)) && strlen(currNum) != 0){
+                    strcpy(prevNum,currNum);
+                    currNum[0] = '\0';
+                    oper = mult;
+                    hasDecimal = 0;
+                }
+                if(btnFacPressed && strlen(currNum) != 0){
+                    oper = fact;
+                    btnEqlPressed = true;
+                }
+                if(btnSinPressed && strlen(currNum) != 0){
+                    if(strcmp(currNum, "-")){
+                        oper = sinus;
+                        btnEqlPressed = true;
+                    }
+                }
+                if(btnSqrtPressed && strlen(currNum) != 0){
+                        strcpy(prevNum,currNum);
+                        currNum[0] = '\0';
+                        oper = root;
+                        hasDecimal = 0;
+                }
+                if(btnPowPressed && strlen(currNum) != 0){
+                    strcpy(prevNum,currNum);
+                    currNum[0] = '\0';
+                    oper = power;
+                    hasDecimal = 0;
+                }
+                if(btnDecPressed || IsKeyPressed(KEY_PERIOD ) || IsKeyPressed(KEY_KP_DECIMAL)){
+                    if(!hasDecimal && strlen(currNum) != 0){
+                        strcat(currNum, ".");
+                        hasDecimal = 1;
+                    }
                 }
             }
 
 
             //pain and suffering
             if(btnEqlPressed || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)){
-                if(strlen(currNum) && !errState){
+                if(oper && strlen(currNum) && !errState){
                     char* tmpStr;
                     switch (oper) {
                         case plus:
@@ -241,11 +244,6 @@ int main()
                             tmpStr = op_pow(prevNum, currNum);
                             strcpy(currNum, tmpStr);
                             break;
-                        default:
-                            fprintf(stderr ,"no operation error, closing");
-#ifdef DEBUG
-                            exit(1);
-#elif
                     }
 
                     if(strstr(currNum, ".") != NULL) hasDecimal = 1;
