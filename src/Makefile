@@ -15,6 +15,14 @@ tmp_folders:
 	mkdir -p ../tmp
 	mkdir -p ../lib
 
+documentation:
+	rm -f -r doc.pdf
+	doxygen Doxyfile && \
+	cd latex && \
+	pdflatex refman.tex && \
+	mv refman.pdf ../doc.pdf;
+	rm -f -r latex
+	rm -f -r html
 
 main: frontend/main.c
 	cp backend/operation.h frontend/.

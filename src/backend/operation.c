@@ -138,10 +138,10 @@ char *op_mul(char *multiplicand, char *multiplier) {
 
 /**
  *
- * @brief division for two numbers
- * @param dividend Number that will be divided by the @param divisor
- * @param divisor Number that will divide @param dividend
- * @return result Quotient as string
+ * \brief division for two numbers
+ * \param dividend Number that will be divided by the @param divisor
+ * \param divisor Number that will divide @param dividend
+ * \return result Quotient as string
  */
 char *op_div(char *dividend, char *divisor) {
     mpfr_t _dividend, _divisor;

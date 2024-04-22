@@ -1,16 +1,3 @@
-/*******************************************************************************************
-*
-*   LayoutName v1.0.0 - Tool Description
-*
-*   LICENSE: Propietary License
-*
-*   Copyright (c) 2022 raylib technologies. All Rights Reserved.
-*
-*   Unauthorized copying of this file, via any medium is strictly prohibited
-*   This project is proprietary and confidential unless the owner allows
-*   usage in any other form by expresely written permission.
-*
-**********************************************************************************************/
 
 #include "raylib.h"
 
@@ -25,10 +12,14 @@ short errState = 0;
 //----------------------------------------------------------------------------------
 // Controls Functions Declaration
 //----------------------------------------------------------------------------------
-///
-/// \brief helper adds number to currNum string and handles edge cases
-/// \param currNum array that hold current number you're inputing
-/// \param number number you want to input
+
+/*!
+* \brief helper adds number to currNum string and handles edge cases
+* \param currNum array that hold current number you're inputing
+* \param number number you want to input
+* \return void
+*
+ */
 void addNumberToCurrNum(char *currNum, char* number){
     if((strlen(currNum) == 1 && currNum[0] == '0') || errState){
         currNum[0] = number[0];
@@ -105,7 +96,7 @@ int main()
             }
 
 
-            //buttons 1-9 handles input
+        //buttons 1-9 handles input
             if(btn1Pressed || IsKeyPressed(KEY_KP_1)){ addNumberToCurrNum(currNum, "1"); }
             if(btn2Pressed || IsKeyPressed(KEY_KP_2)){ addNumberToCurrNum(currNum, "2"); }
             if(btn3Pressed || IsKeyPressed(KEY_KP_3)){ addNumberToCurrNum(currNum, "3"); }
