@@ -188,6 +188,7 @@ FETCH_HEAD
 HEAD
 .idea/
 
+test
 src/backend/gmp.h
 src/backend/mpfr.h
 src/frontend/raygui.h
