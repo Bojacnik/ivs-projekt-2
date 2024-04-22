@@ -143,7 +143,7 @@ char *op_div(char *number1, char *number2) {
 
     mpfr_div(additionResult, num1, num2, rounding);
 
-    char *str = convertToString(num2);
+    char *str = convertToString(additionResult);
     mpfr_clears(num1, num2, additionResult, NULL);
 
     return str;
