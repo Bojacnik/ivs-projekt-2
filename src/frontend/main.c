@@ -229,7 +229,7 @@ int main()
                             strcpy(currNum, tmpStr);
                             break;
                         case power:
-                            tmpStr = op_root(prevNum, currNum);
+                            tmpStr = op_pow(prevNum, currNum);
                             strcpy(currNum, tmpStr);
                             break;
 
