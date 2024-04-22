@@ -70,6 +70,7 @@ clone_install_raygui:
 
 clean:
 	rm -f test
+	rm -f main
 	rm -f frontend/main
 	rm -f frontend/operation.h
 	rm -f frontend/style_jungle.h
