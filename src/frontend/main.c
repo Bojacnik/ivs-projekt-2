@@ -41,8 +41,8 @@ int main()
 {
     // Initialization
     //---------------------------------------------------------------------------------------
-    int screenWidth = 296;
-    int screenHeight = 368;
+    int screenWidth = 376;
+    int screenHeight = 456;
     int firstStart = 1;
 
     InitWindow(screenWidth, screenHeight, "Calculator");
@@ -80,6 +80,7 @@ int main()
     int oper=0;
 
     short hasDecimal = 0;
+
     //----------------------------------------------------------------------------------
 
     SetTargetFPS(60);
@@ -96,6 +97,7 @@ int main()
                 firstStart = 0;
                 GuiSetStyle(TEXTBOX, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT);
             }
+
 
             //buttons 1-9
             if(btn1Pressed || IsKeyPressed(KEY_KP_1)){ addNumberToCurrNum(currNum, "1"); }
@@ -129,22 +131,24 @@ int main()
             //clears current number, (FIX NOT HOW STRINGS WORK) actually no this works, because static size pole :]]]]
             if(btnCEPressed){
                 currNum[0] = '\0';
+                hasDecimal = 0;
             }
             //clears all,
             if(btnClearPressed || IsKeyPressed(KEY_DELETE)){
                 currNum[0] = '\0';
                 prevNum[0] = '\0';
                 oper = 0;
+                hasDecimal = 0;
             }
 
             //functions
-            if(btnPlusPressed || IsKeyPressed(KEY_KP_ADD)){
+            if((btnPlusPressed || IsKeyPressed(KEY_KP_ADD)) && strlen(currNum) != 0){
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = plus;
                 hasDecimal = 0;
             }
-            if(btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT)){
+            if((btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT))  && strlen(currNum) != 0){
                 if(strlen(currNum) == 0){
                     strcat(currNum,"-");
                 }else if(strlen(currNum) == 1 &&  currNum[0] == '-'){}
@@ -155,33 +159,33 @@ int main()
                 hasDecimal = 0;
                 }
             }
-            if(btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE)){
+            if((btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE))  && strlen(currNum) != 0){
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = division;
                 hasDecimal = 0;
             }
-            if(btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)){
+            if((btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)) && strlen(currNum) != 0){
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = mult;
                 hasDecimal = 0;
             }
-            if(btnFacPressed){
+            if(btnFacPressed && strlen(currNum) != 0){
                 oper = fact;
                 btnEqlPressed = true;
             }
-            if(btnSinPressed){
+            if(btnSinPressed && strlen(currNum) != 0){
                 oper = sinus;
                 btnEqlPressed = true;
             }
-            if(btnSqrtPressed){
+            if(btnSqrtPressed && strlen(currNum) != 0){
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = root;
                 hasDecimal = 0;
             }
-            if(btnPowPressed){
+            if(btnPowPressed && strlen(currNum) != 0){
                 strcpy(prevNum,currNum);
                 currNum[0] = '\0';
                 oper = power;
@@ -232,7 +236,9 @@ int main()
                             tmpStr = op_pow(prevNum, currNum);
                             strcpy(currNum, tmpStr);
                             break;
-
+                        default:
+                            fprintf(stderr ,"no operation error, closing");
+                            exit(1);
                     }
 
                     if(strstr(currNum, ".") != NULL) hasDecimal = 1;
@@ -256,31 +262,32 @@ int main()
 
         // raygui: controls drawing
         //----------------------------------------------------------------------------------
-            btnDivPressed = GuiButton((Rectangle){ 224, 256, 40, 40 }, "/");
-            btnEqlPressed = GuiButton((Rectangle){ 176, 304, 88, 40 }, "=");
-            btn0Pressed = GuiButton((Rectangle){ 128, 304, 40, 40 }, "0");
-            btnDecPressed = GuiButton((Rectangle){ 80, 304, 40, 40 }, ".");
-            btnFacPressed = GuiButton((Rectangle){ 32, 304, 40, 40 }, "n!");
-            btn1Pressed = GuiButton((Rectangle){ 80, 256, 40, 40 }, "1");
-            btn8Pressed = GuiButton((Rectangle){ 128, 160, 40, 40 }, "8");
-            btn5Pressed = GuiButton((Rectangle){ 128, 208, 40, 40 }, "5");
-            btnSinPressed = GuiButton((Rectangle){ 32, 160, 40, 40 }, "Sin");
-            btn4Pressed = GuiButton((Rectangle){ 80, 208, 40, 40 }, "4");
-            btnSqrtPressed = GuiButton((Rectangle){ 32, 208, 40, 40 }, "Root");
-            btnPowPressed = GuiButton((Rectangle){ 32, 256, 40, 40 }, "x^y");
-            btn7Pressed = GuiButton((Rectangle){ 80, 160, 40, 40 }, "7");
-            btn2Pressed = GuiButton((Rectangle){ 128, 256, 40, 40 }, "2");
-            btnDelPressed = GuiButton((Rectangle){ 32, 112, 88, 40 }, "Del");
-            btn9Pressed = GuiButton((Rectangle){ 176, 160, 40, 40 }, "9");
-            btnPlusPressed = GuiButton((Rectangle){ 224, 112, 40, 40 }, "+");
-            btn3Pressed = GuiButton((Rectangle){ 176, 256, 40, 40 }, "3");
-            btnCEPressed = GuiButton((Rectangle){ 128, 112, 40, 40 }, "CE");
-            btn6Pressed = GuiButton((Rectangle){ 176, 208, 40, 40 }, "6");
-            btnClearPressed = GuiButton((Rectangle){ 176, 112, 40, 40 }, "C");
-            btnMinPressed = GuiButton((Rectangle){ 224, 160, 40, 40 }, "-");
-            btnMulPressed = GuiButton((Rectangle){ 224, 208, 40, 40 }, "*");
-            if (GuiTextBox((Rectangle){ 32, 48, 232, 40 }, currNum, 256, false)) {
-            }
+        GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
+        btnDivPressed = GuiButton((Rectangle){ 288, 304, 56, 56 }, "/");
+        btnEqlPressed = GuiButton((Rectangle){ 224, 368, 120, 56 }, "=");
+        btn0Pressed = GuiButton((Rectangle){ 160, 368, 56, 56 }, "0");
+        btnDecPressed = GuiButton((Rectangle){ 96, 368, 56, 56 }, ".");
+        btnFacPressed = GuiButton((Rectangle){ 32, 368, 56, 56 }, "n!");
+        btn1Pressed = GuiButton((Rectangle){ 96, 304, 56, 56 }, "1");
+        btn8Pressed = GuiButton((Rectangle){ 160, 176, 56, 56 }, "8");
+        btn5Pressed = GuiButton((Rectangle){ 160, 240, 56, 56 }, "5");
+        btnSinPressed = GuiButton((Rectangle){ 32, 176, 56, 56 }, "Sin");
+        btn4Pressed = GuiButton((Rectangle){ 96, 240, 56, 56 }, "4");
+        btnSqrtPressed = GuiButton((Rectangle){ 32, 240, 56, 56 }, "Root");
+        btnPowPressed = GuiButton((Rectangle){ 32, 304, 56, 56 }, "x^y");
+        btn7Pressed = GuiButton((Rectangle){ 96, 176, 56, 56 }, "7");
+        btn2Pressed = GuiButton((Rectangle){ 160, 304, 56, 56 }, "2");
+        btnDelPressed = GuiButton((Rectangle){ 32, 112, 120, 56 }, "Del");
+        btn9Pressed = GuiButton((Rectangle){ 224, 176, 56, 56 }, "9");
+        btnPlusPressed = GuiButton((Rectangle){ 288, 112, 56, 56 }, "+");
+        btn3Pressed = GuiButton((Rectangle){ 224, 304, 56, 56 }, "3");
+        btnCEPressed = GuiButton((Rectangle){ 160, 112, 56, 56 }, "CE");
+        btn6Pressed = GuiButton((Rectangle){ 224, 240, 56, 56 }, "6");
+        btnClearPressed = GuiButton((Rectangle){ 224, 112, 56, 56 }, "C");
+        btnMinPressed = GuiButton((Rectangle){ 288, 176, 56, 56 }, "-");
+        btnMulPressed = GuiButton((Rectangle){ 288, 240, 56, 56 }, "*");
+        GuiSetStyle(DEFAULT, TEXT_SIZE, 28);
+        if (GuiTextBox((Rectangle){ 32, 24, 312, 72 }, currNum, 128, false)){}
         //----------------------------------------------------------------------------------
 
         EndDrawing();
