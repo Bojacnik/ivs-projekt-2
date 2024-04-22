@@ -10,7 +10,12 @@
 #define PRECISION_BITS ceil(PRECISION_DECIMALS * log2(10))
 #define rounding MPFR_RNDZ
 
-
+/**
+ * @brief removes substr from str
+ * @param str string to remove from
+ * @param sub substring to remove
+ * @return string without the substring
+ */
 void remove_substring(char *str, const char *sub) {
     // Find the position of the substring in the string
     char *found = strstr(str, sub);
@@ -29,6 +34,11 @@ void remove_substring(char *str, const char *sub) {
     }
 }
 
+/**
+ * @brief removes zeros at the end of the string
+ * @param str string to remove zeros
+ * @return str without zeros at the end
+ */
 void removeTrailingZeros(char* str) {
     int len = strlen(str);
     for (int i = len - 1; i >= 0; i--) {
@@ -69,7 +79,7 @@ char *convertToString(mpfr_t number) {
  *
  * @param addend1 First number string for addition
  * @param addend2 Second number string for addition
- * @return result Resulting number as string
+ * @return Resulting number as string
  */
 char *op_add(char *addend1, char *addend2) {
     mpfr_t _addend1, _addend2;
@@ -93,7 +103,7 @@ char *op_add(char *addend1, char *addend2) {
  * @brief subtraction for two numbers
  * @param minuend Number that is going to be subtracted from
  * @param subtrahend Number that will be used to subtract from minuend
- * @return result Product of the minuend and subtrahend
+ * @return Product of the minuend and subtrahend
  */
 char *op_sub(char *minuend, char *subtrahend) {
     mpfr_t _minuend, _subtrahend;
@@ -115,9 +125,9 @@ char *op_sub(char *minuend, char *subtrahend) {
 /**
  *
  * @brief multiplication for two numbers
- * @param multiplicand Number that will be multiplied by the @param multiplier
- * @param multiplier Number that will multiply the @param multiplicand
- * @return result Product of the multiplicand and multiplier
+ * @param multiplicand Number that will be multiplied by the multiplier
+ * @param multiplier Number that will multiply the multiplicand
+ * @return Product of the multiplicand and multiplier
  */
 char *op_mul(char *multiplicand, char *multiplier) {
     mpfr_t _multiplicand, _multiplier;
@@ -139,9 +149,9 @@ char *op_mul(char *multiplicand, char *multiplier) {
 /**
  *
  * \brief division for two numbers
- * \param dividend Number that will be divided by the @param divisor
- * \param divisor Number that will divide @param dividend
- * \return result Quotient as string
+ * \param dividend Number that will be divided by the divisor
+ * \param divisor Number that will divide dividend
+ * \return Quotient as string
  */
 char *op_div(char *dividend, char *divisor) {
     mpfr_t _dividend, _divisor;
@@ -164,7 +174,7 @@ char *op_div(char *dividend, char *divisor) {
  *
  * @brief math factorial
  * @param factor will determine to where we shall multiply numbers for example factor of five will result in 120
- * @return result resulting factorial of @param factor
+ * @return resulting factorial of factor
  */
 char *op_factorial(char *factor) {
 
@@ -196,10 +206,10 @@ char *op_factorial(char *factor) {
 
 /**
  *
- * @brief @param exponent power of @param base
- * @param base will be exponentiated by @param exponent
- * @param exponent will be used to exponentiate @param base
- * @return result is the exponentiated @param base by @param exponent
+ * @brief exponent power of base
+ * @param base will be exponentiated by exponent
+ * @param exponent will be used to exponentiate base
+ * @return the exponentiated base by exponent
  */
 char *op_pow(char* base, char* exponent) {
     mpfr_t _base, _exponent;
@@ -217,9 +227,9 @@ char *op_pow(char* base, char* exponent) {
 /**
  *
  * @brief general root
- * @param radicand will be exponentiated by @param index
- * @param index will be used to exponentiate @param base
- * @return result from root with index of @param index from @param radicand
+ * @param radicand will be exponentiated by index
+ * @param index will be used to exponentiate base
+ * @return index-th root of radicant
  */
 char *op_root(char *radicand, char *index) {
     mpfr_t _radicand, num2, root, one_over;
@@ -245,7 +255,7 @@ char *op_root(char *radicand, char *index) {
  *
  * @brief general root
  * @param argument variable in radians used for sin
- * @return result resulting number from sin(@param argument)
+ * @return number from sin(argument)
  */
 char *op_sin(char *argument) {
     mpfr_t _argument;
