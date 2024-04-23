@@ -3,7 +3,7 @@ CC = gcc
 
 .PHONY: test all main temp_folders deps profiling clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
 
-all: deps main
+all: deps main run
 
 deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
 
@@ -15,7 +15,7 @@ tmp_folders:
 	mkdir -p ../tmp
 	mkdir -p ../lib
 
-documentation:
+doc:
 	rm -f -r doc.pdf
 	doxygen Doxyfile && \
 	cd latex && \
@@ -24,13 +24,14 @@ documentation:
 	rm -f -r latex
 	rm -f -r html
 
-main: frontend/main.c
-	cp backend/operation.h frontend/.
-	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
+run:
 	./main
 
+main: frontend/main.c
+	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
+
 profiling: ../profiling/profiling.c
-	$(CC) ../profiling/profiling.c -o ../profiling/profiling -pg -lmpfr -lgmp -lm
+	$(CC) ../profiling/profiling.c backend/ -o ../profiling/profiling -pg -lmpfr -lgmp -lm
 	../profiling/profiling < ../tmp/testp.txt
 	gprof profiling gmon.out > analysis.txt
 
@@ -81,11 +82,13 @@ clone_install_raygui:
 		echo "Raygui has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
+pack:
+
+
 clean:
 	rm -f test
 	rm -f main
 	rm -f frontend/main
-	rm -f frontend/operation.h
 	rm -f frontend/style_jungle.h
 	rm -f raylib.h
 	rm -f raygui.h
@@ -93,4 +96,5 @@ clean:
 	rm -f backend/mpfr.h
 	rm -r -f ../lib
 	rm -r -f ../tmp
+	rm -r -f ../profiling/profiling
 

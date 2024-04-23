@@ -4,7 +4,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include "style_jungle.h"
-#include "operation.h"
+#include "backend/operation.h"
 
 enum operation{plus = 1, minus, mult, division, sinus, fact, root, power };
 short errState = 0;
