@@ -30,8 +30,8 @@ main: frontend/main.c
 	./main
 
 profiling: ../profiling/profiling.c
-	$(CC) ../profiling/profiling.c -o profiling -pg -lm
-	./profiling < ../tmp/testp.txt
+	$(CC) ../profiling/profiling.c -o ../profiling/profiling -pg -lmpfr -lgmp -lm
+	../profiling/profiling < ../tmp/testp.txt
 	gprof profiling gmon.out > analysis.txt
 
 clone_install_gmp:
