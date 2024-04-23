@@ -30,8 +30,8 @@ run:
 main: frontend/main.c
 	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
 
-profiling: ../profiling/profiling.c
-	$(CC) ../profiling/profiling.c backend/ -o ../profiling/profiling -pg -lmpfr -lgmp -lm
+prof: ../profiling/profiling.c backend/operation.c
+	$(CC) ../profiling/profiling.c backend/operation.c -o ../profiling/profiling -pg -lmpfr -lgmp -lm
 	../profiling/profiling < ../tmp/testp.txt
 	gprof profiling gmon.out > analysis.txt
 
