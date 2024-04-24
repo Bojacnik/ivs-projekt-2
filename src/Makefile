@@ -14,6 +14,7 @@ test:
 tmp_folders:
 	mkdir -p ../tmp
 	mkdir -p ../lib
+	mkdir -p ../build
 
 doc:
 	rm -f -r doc.pdf
@@ -28,7 +29,7 @@ run:
 	./calc
 
 main: frontend/main.c
-	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o calc -L../lib -lraylib -lmpfr -lgmp -lm
+	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o ../build/calc -L../lib -lraylib -lmpfr -lgmp -lm
 
 prof: ../profiling/profiling.c backend/operation.c
 	$(CC) ../profiling/profiling.c backend/operation.c -o ../profiling/profiling -pg -lmpfr -lgmp -lm
@@ -36,48 +37,48 @@ prof: ../profiling/profiling.c backend/operation.c
 	gprof ../profiling/profiling gmon.out > analysis.txt
 
 clone_install_gmp:
-	@if [ ! -f "../lib/libgmp.a" ] || [ ! -f "backend/gmp.h" ]; then \
+	@if [ ! -f "../lib/libgmp.a" ] || [ ! -f "../lib/gmp.h" ]; then \
 		cd ../tmp && \
 		git clone --depth 1 https://github.com/alisw/GMP.git && \
 		cd GMP && ./configure --disable-shared && \
 		make  &&\
-		mv gmp.h ../../src/backend/gmp.h && \
-		mv .libs/libgmp.a ../../lib/libgmp.a; \
+		cp gmp.h ../../lib/gmp.h && \
+		cp .libs/libgmp.a ../../lib/libgmp.a; \
 	else \
 		echo "GMP already installed. Skipping..."; \
 	fi
 
 clone_install_mpfr:
-	@if [ ! -f "../lib/libmpfr.a" ] || [ ! -f "backend/mpfr.h" ]; then \
+	@if [ ! -f "../lib/libmpfr.a" ] || [ ! -f "../lib/mpfr.h" ]; then \
       	cd ../tmp && \
       	git clone --depth 1 https://github.com/alisw/MPFR && \
 		cd MPFR && ./configure --enable-static && \
 		autoreconf -f -i && \
 		make && \
-		mv src/mpfr.h ../../src/backend/mpfr.h && \
-		mv src/.libs/libmpfr.a ../../lib/libmpfr.a;\
+		cp src/mpfr.h ../../lib/mpfr.h && \
+		cp src/.libs/libmpfr.a ../../lib/libmpfr.a;\
    	else \
     		echo "MPFR already installed. Skipping..."; \
   	fi
 
 clone_install_raylib:
-	@if [ ! -f "../lib/libraylib.a" ] || [ ! -f "frontend/raylib.h" ]; then \
+	@if [ ! -f "../lib/libraylib.a" ] || [ ! -f "../lib/raylib.h" ]; then \
 		cd ../tmp && \
 		git clone --depth 1 https://github.com/raysan5/raylib.git && \
 		cd raylib/src && \
 		make PLATFORM=PLATFORM_DESKTOP && \
 		mv libraylib.a ../../../lib/ && \
-		cp raylib.h ../../../src/frontend/.; \
+		cp raylib.h ../../../lib/.; \
 	else \
 		echo "Raylib has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
 clone_install_raygui:
-	@if [ ! -f "frontend/raygui.h" ] || [ ! -f "frontend/style_jungle.h" ]; then \
+	@if [ ! -f "../lib/raygui.h" ] || [ ! -f "../lib/style_jungle.h" ]; then \
 		cd ../tmp && \
 		git clone --depth 1 https://github.com/raysan5/raygui.git && \
-		cp ../tmp/raygui/src/raygui.h ../src/frontend/. && \
-		cp ../tmp/raygui/styles/jungle/style_jungle.h ../src/frontend/style_jungle.h; \
+		cp ../tmp/raygui/src/raygui.h ../lib/. && \
+		cp ../tmp/raygui/styles/jungle/style_jungle.h ../lib/style_jungle.h; \
 	else \
 		echo "Raygui has already been cloned from GitHUB. Skipping installation!"; \
 	fi
@@ -87,7 +88,7 @@ pack:
 
 clean:
 	rm -f test
-	rm -f main
+	rm -f calc
 	rm -f frontend/main
 	rm -f frontend/style_jungle.h
 	rm -f raylib.h
@@ -97,4 +98,5 @@ clean:
 	rm -r -f ../lib
 	rm -r -f ../tmp
 	rm -r -f ../profiling/profiling
+	rm -r -f ../build
 
