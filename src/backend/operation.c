@@ -8,7 +8,7 @@
 
 #define PRECISION_DECIMALS 100
 #define PRECISION_BITS ceil(PRECISION_DECIMALS * log2(10))
-#define rounding MPFR_RNDZ
+#define ROUNDING MPFR_RNDZ
 
 /**
  * @brief removes substr from str
@@ -90,12 +90,12 @@ char *op_add(char *addend1, char *addend2) {
     mpfr_init2(_addend1, PRECISION_BITS);
     mpfr_init2(_addend2, PRECISION_BITS);
 
-    mpfr_init_set_str(_addend1, addend1, 10, rounding);
-    mpfr_init_set_str(_addend2, addend2, 10, rounding);
+    mpfr_init_set_str(_addend1, addend1, 10, ROUNDING);
+    mpfr_init_set_str(_addend2, addend2, 10, ROUNDING);
 
     mpfr_t summand;
     mpfr_init2(summand, PRECISION_BITS);
-    mpfr_add(summand, _addend1, _addend2, rounding);
+    mpfr_add(summand, _addend1, _addend2, ROUNDING);
 
     char *result = convertToString(summand);
     mpfr_clears(_addend1, _addend2, summand, NULL);
@@ -114,12 +114,12 @@ char *op_sub(char *minuend, char *subtrahend) {
     mpfr_init2(_minuend, PRECISION_BITS);
     mpfr_init2(_subtrahend, PRECISION_BITS);
 
-    mpfr_init_set_str(_minuend, minuend, 10, rounding);
-    mpfr_init_set_str(_subtrahend, subtrahend, 10, rounding);
+    mpfr_init_set_str(_minuend, minuend, 10, ROUNDING);
+    mpfr_init_set_str(_subtrahend, subtrahend, 10, ROUNDING);
 
     mpfr_t product;
     mpfr_init2(product, PRECISION_BITS);
-    mpfr_sub(product, _minuend, _subtrahend, rounding);
+    mpfr_sub(product, _minuend, _subtrahend, ROUNDING);
 
     char *result = convertToString(product);
     mpfr_clears(_minuend, _subtrahend, product, NULL);
@@ -138,12 +138,12 @@ char *op_mul(char *multiplicand, char *multiplier) {
     mpfr_init2(_multiplicand, PRECISION_BITS);
     mpfr_init2(_multiplier, PRECISION_BITS);
 
-    mpfr_init_set_str(_multiplicand, multiplicand, 10, rounding);
-    mpfr_init_set_str(_multiplier, multiplier, 10, rounding);
+    mpfr_init_set_str(_multiplicand, multiplicand, 10, ROUNDING);
+    mpfr_init_set_str(_multiplier, multiplier, 10, ROUNDING);
 
     mpfr_t product;
     mpfr_init2(product, PRECISION_BITS);
-    mpfr_mul(product, _multiplicand, _multiplier, rounding);
+    mpfr_mul(product, _multiplicand, _multiplier, ROUNDING);
 
     char *result = convertToString(product);
     mpfr_clears(_multiplicand, _multiplier, product, NULL);
@@ -162,12 +162,12 @@ char *op_div(char *dividend, char *divisor) {
     mpfr_init2(_dividend, PRECISION_BITS);
     mpfr_init2(_divisor, PRECISION_BITS);
 
-    mpfr_init_set_str(_dividend, dividend, 10, rounding);
-    mpfr_init_set_str(_divisor, divisor, 10, rounding);
+    mpfr_init_set_str(_dividend, dividend, 10, ROUNDING);
+    mpfr_init_set_str(_divisor, divisor, 10, ROUNDING);
 
     mpfr_t quotient;
     mpfr_init2(quotient, PRECISION_BITS);
-    mpfr_div(quotient, _dividend, _divisor, rounding);
+    mpfr_div(quotient, _dividend, _divisor, ROUNDING);
 
     char *str = convertToString(quotient);
     mpfr_clears(_dividend, _divisor, quotient, NULL);
@@ -192,13 +192,13 @@ char *op_factorial(char *factor) {
     mpfr_init2(num2, PRECISION_BITS);
     mpfr_init2(fac, PRECISION_BITS);
 
-    mpfr_init_set_str(fac, factor, 10, rounding);
-    mpfr_set_d(num2, 1, rounding);
-    mpfr_set_d(num1, 1, rounding);
+    mpfr_init_set_str(fac, factor, 10, ROUNDING);
+    mpfr_set_d(num2, 1, ROUNDING);
+    mpfr_set_d(num1, 1, ROUNDING);
 
 
-    for(; mpfr_cmp(num1, fac) <= 0; mpfr_add_d(num1, num1, 1, rounding)) {
-        mpfr_mul(num2, num1, num2, rounding);
+    for(; mpfr_cmp(num1, fac) <= 0; mpfr_add_d(num1, num1, 1, ROUNDING)) {
+        mpfr_mul(num2, num1, num2, ROUNDING);
     }
 
     char* str = convertToString(num2);
@@ -220,10 +220,10 @@ char *op_pow(char* base, char* exponent) {
     mpfr_init2(_base, PRECISION_BITS);
     mpfr_init2(_exponent, PRECISION_BITS);
 
-    mpfr_init_set_str(_base, base, 10, rounding);
-    mpfr_init_set_str(_exponent, exponent, 10, rounding);
+    mpfr_init_set_str(_base, base, 10, ROUNDING);
+    mpfr_init_set_str(_exponent, exponent, 10, ROUNDING);
 
-    mpfr_pow(_base, _base, _exponent, rounding);
+    mpfr_pow(_base, _base, _exponent, ROUNDING);
     char* str = convertToString(_base);
     return str;
 }
@@ -238,16 +238,16 @@ char *op_pow(char* base, char* exponent) {
 char *op_root(char *radicand, char *index) {
     mpfr_t _radicand, num2, root, one_over;
 
-    mpfr_init_set_str(_radicand, radicand, 10, rounding);
-    mpfr_init_set_str(num2, index, 10, rounding);
+    mpfr_init_set_str(_radicand, radicand, 10, ROUNDING);
+    mpfr_init_set_str(num2, index, 10, ROUNDING);
 
     mpfr_init2(root, PRECISION_BITS);
     mpfr_init2(one_over, PRECISION_BITS);
 
-    mpfr_set_d(one_over, 1, rounding);
-    mpfr_div(one_over, one_over, num2, rounding);
+    mpfr_set_d(one_over, 1, ROUNDING);
+    mpfr_div(one_over, one_over, num2, ROUNDING);
 
-    mpfr_pow(root, _radicand, one_over, rounding);
+    mpfr_pow(root, _radicand, one_over, ROUNDING);
 
     char *result = convertToString(root);
     mpfr_clears(_radicand, num2, one_over, NULL);
@@ -265,9 +265,9 @@ char *op_sin(char *argument) {
     mpfr_t _argument;
     mpfr_init2(_argument, PRECISION_BITS);
 
-    mpfr_init_set_str(_argument, argument, 10, rounding);
+    mpfr_init_set_str(_argument, argument, 10, ROUNDING);
 
-    mpfr_sin(_argument, _argument, rounding);
+    mpfr_sin(_argument, _argument, ROUNDING);
 
     char *result = convertToString(_argument);
     mpfr_clear(_argument);
