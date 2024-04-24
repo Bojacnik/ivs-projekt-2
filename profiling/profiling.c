@@ -23,6 +23,14 @@ char *left_part(const size_t *N); //this function gets number of measurements an
 char *arithmetic_mean(size_t *N, const long double *array); // 1/N * from i to N SUM(Xi)
 char *right_part(size_t *N, const long double *array, char *C); // (sum(xi^2) - N * C^2)
 
+/**
+* @brief Function for calculate left part of the formula
+*
+* This function calculates left part of the standard deviation formula which is: 1 / (N-1)
+*
+* @param N, number of measured values
+* @return Returns value of left part of the standard deviation formula
+*/
 char* left_part(const size_t *N) { //this function gets number of measurements and returns firth part of formula which is 1/(N-1)
     char one[] = "1";
 
@@ -36,6 +44,12 @@ char* left_part(const size_t *N) { //this function gets number of measurements a
     return op_div(one, op_sub(n, one));
 }
 
+
+/**
+* @brief Helper function for converting size_t to string
+* @param number Is the number to be convert
+* @return Number as string
+*/
 char *convertUlToString(size_t *number) {
     char *n = malloc(sizeof(char)*22);
     if (n == NULL) {
@@ -46,6 +60,11 @@ char *convertUlToString(size_t *number) {
     return n;
 }
 
+/**
+* @brief Helper function for converting long double to string
+* @param number Is the number to be convert
+* @return Number as string
+*/
 char *convertLongDoubleToString(const long double *number) {
     char *n = malloc(sizeof(char)*101);
     if (n == NULL) {
@@ -56,6 +75,16 @@ char *convertLongDoubleToString(const long double *number) {
     return n;
 }
 
+/**
+* @brief Function for calculate arithmetic mean
+*
+* This function calculates arithmetic mean from measured values.
+* It is important for other parts of the formula.
+*
+* @param N, number of measured values
+* @param array, array pointer which points on array with measured values
+* @return Returns value of arithmetic mean
+*/
 //this function gets number of measurements and array of numbers, returns arithmetic mean
 char *arithmetic_mean(size_t *N, const long double *array) {
     char *part = op_div("1", convertUlToString(N));  //(1/N)
@@ -71,6 +100,16 @@ char *arithmetic_mean(size_t *N, const long double *array) {
     return op_mul(part, sum);  // (1/N) * sum
 }
 
+/**
+* @brief Function for calculate right part of formula
+*
+* This function calculates right part of formula which is sum (1, N): (xi^2 - N*C^2)^2
+*
+* @param N, number of measured values
+* @param array, array pointer which points on array with measured values
+* @param C, value of arithmetic mean of measurements
+* @return Returns value of right part of the function
+*/
 //this function gets number of measurements, array and arithmetic mean, returns value of internal function (sum xi^2 - N * C^2)
 char *right_part(size_t *N, const long double *array, char *C)
 {
@@ -98,6 +137,15 @@ char *right_part(size_t *N, const long double *array, char *C)
     return arraySum;
 }
 
+/**
+* @brief Function for joining all parts
+*
+* This function joins all parts of formula and square the result
+*
+* @param A, firth part of function: 1 / (N-1)
+* @param B, internal function: sum (1, N): (xi^2 - N*C^2)^2
+* @return Return final value of the standard deviation formula
+*/
 //this functions multiplies left_part by right_part and then returns its square root
 char *join_sqrt(char *left_part, char *right_part) {
     return op_root(
@@ -109,6 +157,14 @@ char *join_sqrt(char *left_part, char *right_part) {
     );
 }
 
+/**
+* @brief Function for values input
+*
+* This function loads values from STDIN. Deals with incorrect inputs.
+*
+* @param N, it is pointer to number of measured values
+* @return Returns pointer to array of measured values
+*/
 //this function assigns number of scanned numbers to the N and returns a pointer to an array of numbers scanned from STDIN
 long double *handleInput(size_t *N) {
     long double *array = NULL; //pointer for the array where all the input numbers will be stored
@@ -150,6 +206,8 @@ long double *handleInput(size_t *N) {
 // C = arithmetic mean of measurements
 // s= final result => s = sqrt(A*B)
 
+
+//entrypoint
 int main(void) {
     size_t N = 0; //number of measurements
     long double *array = handleInput(&N); //user adds manually his values of measurements
