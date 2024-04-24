@@ -196,3 +196,5 @@ src/frontend/raylib.h
 src/frontend/style_jungle.h
 src/frontend/operation.h
 profiling/profiling
+build
+build/calc
