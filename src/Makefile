@@ -65,8 +65,8 @@ clone_install_gmp:
 
 clone_install_mpfr:
 	@if [ ! -f "../lib/libmpfr.a" ] || [ ! -f "../lib/mpfr.h" ]; then \
-      	cd ../tmp && \
-      	git clone --depth 1 https://github.com/alisw/MPFR && \
+    cd ../tmp && \
+    git clone --depth 1 https://github.com/alisw/MPFR && \
 		cd MPFR && ./configure --enable-static && \
 		autoreconf -f -i && \
 		make && \
