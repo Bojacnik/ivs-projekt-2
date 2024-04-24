@@ -72,6 +72,7 @@ char *convertToString(mpfr_t number) {
         removeTrailingZeros(str);
     }
 
+
     remove_substring(str, "e+00");
 
     return str;

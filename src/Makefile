@@ -14,7 +14,7 @@ test:
 	$(CC) $(INCLUDE) $(FLIBS) $(BLIBS) backend/operation_tests.c backend/operation.c -g3 -o test
 	./test
 
-deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
+deps: tmp_folders clone_install_raylib clone_install_raygui
 
 
 tmp_folders:
@@ -48,33 +48,6 @@ clean:
 	rm -r -f ../tmp
 	rm -r -f ../build
 	rm -r -f ../profiling/profiling
-
-
-
-clone_install_gmp:
-	@if [ ! -f "../lib/libgmp.a" ] || [ ! -f "../lib/gmp.h" ]; then \
-		cd ../tmp && \
-		git clone --depth 1 https://github.com/alisw/GMP.git && \
-		cd GMP && ./configure --disable-shared && \
-		make  &&\
-		cp gmp.h ../../lib/gmp.h && \
-		cp .libs/libgmp.a ../../lib/libgmp.a; \
-	else \
-		echo "GMP already installed. Skipping..."; \
-	fi
-
-clone_install_mpfr:
-	@if [ ! -f "../lib/libmpfr.a" ] || [ ! -f "../lib/mpfr.h" ]; then \
-    cd ../tmp && \
-    git clone --depth 1 https://github.com/alisw/MPFR && \
-		cd MPFR && ./configure --enable-static && \
-		autoreconf -f -i && \
-		make && \
-		cp src/mpfr.h ../../lib/mpfr.h && \
-		cp src/.libs/libmpfr.a ../../lib/libmpfr.a;\
-   	else \
-    		echo "MPFR already installed. Skipping..."; \
-  	fi
 
 clone_install_raylib:
 	@if [ ! -f "../lib/libraylib.a" ] || [ ! -f "../lib/raylib.h" ]; then \
