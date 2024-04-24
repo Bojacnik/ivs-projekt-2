@@ -4,17 +4,12 @@
 
 #define PRECISION_DECIMALS 100
 #define PRECISION_BITS ceil(PRECISION_DECIMALS * log2(10))
-#define rounding MPFR_RNDZ
+#define ROUNDING MPFR_RNDZ
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
-#include "gmp.h"
-#include "mpfr.h"
-#include "operation.h"
-
-//TODO: change
+#include "../src/backend/operation.h"
 
 //Functions declaration //
 long double *handleInput(size_t *N); //this function gets N pointer and returns array of numbers added manually by user
