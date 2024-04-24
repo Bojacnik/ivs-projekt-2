@@ -180,7 +180,7 @@ lib/
 lib/**
 src/raygui.h
 src/raylib.h
-src/main
+src/calc
 
 config
 description
@@ -195,3 +195,4 @@ src/frontend/raygui.h
 src/frontend/raylib.h
 src/frontend/style_jungle.h
 src/frontend/operation.h
+profiling/profiling

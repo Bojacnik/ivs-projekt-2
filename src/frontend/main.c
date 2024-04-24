@@ -4,7 +4,7 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include "style_jungle.h"
-#include "backend/operation.h"
+#include "../backend/operation.h"
 
 enum operation{plus = 1, minus, mult, division, sinus, fact, root, power };
 short errState = 0;
@@ -18,7 +18,6 @@ short errState = 0;
 * \param currNum array that hold current number you're inputing
 * \param number number you want to input
 * \return void
-*
  */
 void addNumberToCurrNum(char *currNum, char* number){
     if((strlen(currNum) == 1 && currNum[0] == '0') || errState){

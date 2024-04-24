@@ -25,15 +25,15 @@ doc:
 	rm -f -r html
 
 run:
-	./main
+	./calc
 
 main: frontend/main.c
-	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
+	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o calc -L../lib -lraylib -lmpfr -lgmp -lm
 
 prof: ../profiling/profiling.c backend/operation.c
 	$(CC) ../profiling/profiling.c backend/operation.c -o ../profiling/profiling -pg -lmpfr -lgmp -lm
-	../profiling/profiling < ../tmp/testp.txt
-	gprof profiling gmon.out > analysis.txt
+	../profiling/profiling < ../profiling/testp.txt
+	gprof ../profiling/profiling gmon.out > analysis.txt
 
 clone_install_gmp:
 	@if [ ! -f "../lib/libgmp.a" ] || [ ! -f "backend/gmp.h" ]; then \
