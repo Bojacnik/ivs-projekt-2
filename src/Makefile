@@ -1,15 +1,21 @@
 CC = gcc
-#CFLAGS = -Iinclude/raygui/src/
+INCLUDE = -L../lib -I../lib
+BLIBS = -lmpfr -lgmp -lm
+FLIBS = -lraylib
 
+.DEFAULT_TARGET: all
 .PHONY: test all main temp_folders deps profiling clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
 
 all: deps main run
 
-deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
+pack:
 
 test:
-	gcc backend/operation_tests.c backend/operation.c -g3 -o test -L../lib -lraylib -lmpfr -lgmp -lm
+	$(CC) $(INCLUDE) $(FLIBS) $(BLIBS) backend/operation_tests.c backend/operation.c -g3 -o test
 	./test
+
+deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
+
 
 tmp_folders:
 	mkdir -p ../tmp
@@ -29,12 +35,28 @@ run:
 	./calc
 
 main: frontend/main.c
-	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o ../build/calc -L../lib -lraylib -lmpfr -lgmp -lm
+	$(CC) $(INCLUDE) $(FLIBS) $(BLIBS) frontend/main.c backend/operation.c -o ../build/calc
 
 prof: ../profiling/profiling.c backend/operation.c
-	$(CC) ../profiling/profiling.c backend/operation.c -o ../profiling/profiling -pg -lmpfr -lgmp -lm
-	../profiling/profiling < ../profiling/testp.txt
+	$(CC) $(INCLUDE) $(BLIBS) ../profiling/profiling.c backend/operation.c -o profiling -pg && \
+	profiling < ../profiling/testp.txt && \
 	gprof ../profiling/profiling gmon.out > analysis.txt
+
+clean:
+	rm -f test
+	rm -f calc
+	rm -f frontend/main
+	rm -f frontend/style_jungle.h
+	rm -f raylib.h
+	rm -f raygui.h
+	rm -f backend/gmp.h
+	rm -f backend/mpfr.h
+	rm -r -f ../lib
+	rm -r -f ../tmp
+	rm -r -f ../build
+	rm -r -f ../profiling/profiling
+
+
 
 clone_install_gmp:
 	@if [ ! -f "../lib/libgmp.a" ] || [ ! -f "../lib/gmp.h" ]; then \
@@ -83,20 +105,6 @@ clone_install_raygui:
 		echo "Raygui has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
-pack:
 
 
-clean:
-	rm -f test
-	rm -f calc
-	rm -f frontend/main
-	rm -f frontend/style_jungle.h
-	rm -f raylib.h
-	rm -f raygui.h
-	rm -f backend/gmp.h
-	rm -f backend/mpfr.h
-	rm -r -f ../lib
-	rm -r -f ../tmp
-	rm -r -f ../profiling/profiling
-	rm -r -f ../build
 
