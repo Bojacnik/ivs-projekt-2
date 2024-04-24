@@ -35,22 +35,15 @@ run:
 	./calc
 
 main: frontend/main.c
-	$(CC) $(INCLUDE) $(FLIBS) $(BLIBS) frontend/main.c backend/operation.c -o ../build/calc
+	$(CC) $(INCLUDE) frontend/main.c backend/operation.c -o ../build/calc $(FLIBS) $(BLIBS)
 
 prof: ../profiling/profiling.c backend/operation.c
-	$(CC) $(INCLUDE) $(BLIBS) ../profiling/profiling.c backend/operation.c -o profiling -pg && \
-	profiling < ../profiling/testp.txt && \
-	gprof ../profiling/profiling gmon.out > analysis.txt
+	$(CC) $(INCLUDE) ../profiling/profiling.c backend/operation.c -o ../profiling/profiling -pg $(BLIBS) && \
+	../profiling/profiling < ../profiling/testp.txt && \
+	gprof ../profiling/profiling gmon.out > ../profiling/analysis.txt
+	rm -f gmon.out
 
 clean:
-	rm -f test
-	rm -f calc
-	rm -f frontend/main
-	rm -f frontend/style_jungle.h
-	rm -f raylib.h
-	rm -f raygui.h
-	rm -f backend/gmp.h
-	rm -f backend/mpfr.h
 	rm -r -f ../lib
 	rm -r -f ../tmp
 	rm -r -f ../build
@@ -89,7 +82,7 @@ clone_install_raylib:
 		git clone --depth 1 https://github.com/raysan5/raylib.git && \
 		cd raylib/src && \
 		make PLATFORM=PLATFORM_DESKTOP && \
-		mv libraylib.a ../../../lib/ && \
+		cp libraylib.a ../../../lib/ && \
 		cp raylib.h ../../../lib/.; \
 	else \
 		echo "Raylib has already been cloned from GitHUB. Skipping installation!"; \
