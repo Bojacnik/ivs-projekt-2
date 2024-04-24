@@ -32,7 +32,7 @@ doc:
 	rm -f -r html
 
 run:
-	./calc
+	../build/calc
 
 main: frontend/main.c
 	$(CC) $(INCLUDE) frontend/main.c backend/operation.c -o ../build/calc $(FLIBS) $(BLIBS)
