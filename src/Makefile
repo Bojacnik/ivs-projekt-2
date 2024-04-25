@@ -16,11 +16,11 @@ pack: xnemecv00.zip
 	cp ../profiling/profiling.c ../pack/.
 	cp ../UzivatelskaDokumentace.pdf ../pack/.
 	cp ../odevzdani.txt ../pack/.
-	zip xnemecv00.zip ../pack/*
+	zip -r xnemecv00.zip ../pack/
 	rm -f -r ../pack
 
 test:
-	$(CC) $(INCLUDE) $(FLIBS) $(BLIBS) backend/operation_tests.c backend/operation.c -g3 -o test
+	$(CC) $(INCLUDE) backend/operation_tests.c backend/operation.c -g3 -o test $(FLIBS) $(BLIBS)
 	./test
 
 deps: tmp_folders clone_install_raylib clone_install_raygui
