@@ -76,5 +76,5 @@ int main(void) {
 
     test_sin("2", "9.09297e-01");
     test_sin("3.14", "1.59265e-03");
-    fprintf(stdout, "Tests successfull!");
+    fprintf(stdout, "Tests successfull!\n");
 }
