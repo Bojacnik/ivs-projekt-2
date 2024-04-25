@@ -4,19 +4,20 @@ BLIBS = -lmpfr -lgmp -lm
 FLIBS = -lraylib
 
 .DEFAULT_TARGET: all
-.PHONY: test all main temp_folders deps profiling clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
+.PHONY: test all main temp_folders deps profiling clean clone_install_raylib clone_install_raygui clean_all backend xnemecv00.zip
 
 all: deps main run
 
-pack:
+pack: xnemecv00.zip
 	mkdir -p ../pack
 	cp ../hodnoceni.txt ../pack/.
 	cp -R frontend ../pack
 	cp -R backend ../pack
-	cp ../UzivatelskaPrirucka.pdf ../pack/.
+	cp ../profiling/profiling.c ../pack/.
+	cp ../UzivatelskaDokumentace.pdf ../pack/.
 	cp ../odevzdani.txt ../pack/.
-	zip ../pack > xnemecv00.zip
-	rm -fr ../pack
+	zip xnemecv00.zip ../pack/*
+	rm -f -r ../pack
 
 test:
 	$(CC) $(INCLUDE) $(FLIBS) $(BLIBS) backend/operation_tests.c backend/operation.c -g3 -o test
