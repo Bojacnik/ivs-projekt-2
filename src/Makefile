@@ -9,6 +9,14 @@ FLIBS = -lraylib
 all: deps main run
 
 pack:
+	mkdir -p ../pack
+	cp ../hodnoceni.txt ../pack/.
+	cp -R frontend ../pack
+	cp -R backend ../pack
+	cp ../UzivatelskaPrirucka.pdf ../pack/.
+	cp ../odevzdani.txt ../pack/.
+	zip ../pack > xnemecv00.zip
+	rm -fr ../pack
 
 test:
 	$(CC) $(INCLUDE) $(FLIBS) $(BLIBS) backend/operation_tests.c backend/operation.c -g3 -o test
@@ -27,7 +35,7 @@ doc:
 	doxygen Doxyfile && \
 	cd latex && \
 	pdflatex refman.tex && \
-	mv refman.pdf ../doc.pdf;
+	mv refman.pdf ../../doc.pdf;
 	rm -f -r latex
 	rm -f -r html
 
@@ -48,6 +56,8 @@ clean:
 	rm -r -f ../tmp
 	rm -r -f ../build
 	rm -r -f ../profiling/profiling
+	rm -r -f ../pack
+	rm -r -f backend/operation_tests
 
 clone_install_raylib:
 	@if [ ! -f "../lib/libraylib.a" ] || [ ! -f "../lib/raylib.h" ]; then \
