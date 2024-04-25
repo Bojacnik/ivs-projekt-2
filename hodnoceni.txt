@@ -1,0 +1,4 @@
+xnemecv00 100 (výběr knihoven, backend, integrace profileru do matematické knihovny, Makefile, review práce ostatních)
+xnovype00 100 (backend, frontend logika, Makefile, Doxygen, .editorconfig, instalátor)
+xdrdlat00 100 (profiling, sepsání výsledků a graf volání)
+xmandym00 100 (vizuelní návrh frontend, uživatelská příručka)

@@ -1,80 +1,87 @@
 CC = gcc
-#CFLAGS = -Iinclude/raygui/src/
+INCLUDE = -L../lib -I../lib
+BLIBS = -lmpfr -lgmp -lm
+FLIBS = -lraylib
 
-.PHONY: test all main temp deps clean clone_install_raylib clone_install_raygui clean_all backend clone_install_gmp clone_install_mpfr
+.DEFAULT_TARGET: all
+.PHONY: test all main temp_folders deps profiling clean clone_install_raylib clone_install_raygui clean_all backend xnemecv00.zip
 
-all: deps main
+all: deps main run
 
-deps: tmp_folders clone_install_gmp clone_install_mpfr clone_install_raylib clone_install_raygui
+pack: xnemecv00.zip
+	mkdir -p ../pack
+	cp ../hodnoceni.txt ../pack/.
+	cp -R frontend ../pack
+	cp -R backend ../pack
+	cp ../profiling/profiling.c ../pack/.
+	cp ../UzivatelskaDokumentace.pdf ../pack/.
+	cp ../odevzdani.txt ../pack/.
+	zip -r xnemecv00.zip ../pack/
+	rm -f -r ../pack
 
 test:
-	gcc backend/operation_tests.c backend/operation.c -g3 -o tests -L../lib -lraylib -lmpfr -lgmp -lm
-	./tests
+	$(CC) $(INCLUDE) backend/operation_tests.c backend/operation.c -g3 -o test $(FLIBS) $(BLIBS)
+	./test
+
+deps: tmp_folders clone_install_raylib clone_install_raygui
+
 
 tmp_folders:
 	mkdir -p ../tmp
 	mkdir -p ../lib
+	mkdir -p ../build
 
+doc:
+	rm -f -r doc.pdf
+	doxygen Doxyfile && \
+	cd latex && \
+	pdflatex refman.tex && \
+	mv refman.pdf ../../doc.pdf;
+	rm -f -r latex
+	rm -f -r html
+
+run:
+	../build/calc
 
 main: frontend/main.c
-	$(CC) $(CFLAGS) frontend/main.c backend/operation.c -o main -L../lib -lraylib -lmpfr -lgmp -lm
-	cp backend/operation.h frontend/.
-	./main
+	$(CC) $(INCLUDE) frontend/main.c backend/operation.c -o ../build/calc $(FLIBS) $(BLIBS)
 
-clone_install_gmp:
-	@if [ ! -f "../lib/libgmp.a" ] || [ ! -f "backend/gmp.h" ]; then \
-		cd ../tmp && \
-		git clone --depth 1 https://github.com/alisw/GMP.git && \
-		cd GMP && ./configure --disable-shared && \
-		make  &&\
-		mv gmp.h ../../src/backend/gmp.h && \
-		mv .libs/libgmp.a ../../lib/libgmp.a; \
-	else \
-		echo "GMP already installed. Skipping..."; \
-	fi
+prof: ../profiling/profiling.c backend/operation.c
+	$(CC) $(INCLUDE) ../profiling/profiling.c backend/operation.c -o ../profiling/profiling -pg $(BLIBS) && \
+	../profiling/profiling < ../profiling/testp.txt && \
+	gprof ../profiling/profiling gmon.out > ../profiling/vystup.txt
+	rm -f gmon.out
 
-clone_install_mpfr:
-	@if [ ! -f "../lib/libmpfr.a" ] || [ ! -f "backend/mpfr.h" ]; then \
-      	cd ../tmp && \
-      	git clone --depth 1 https://github.com/alisw/MPFR && \
-		cd MPFR && ./configure --enable-static && \
-		autoreconf -f -i && \
-		make && \
-		mv src/mpfr.h ../../src/backend/mpfr.h && \
-		mv src/.libs/libmpfr.a ../../lib/libmpfr.a;\
-   	else \
-    		echo "MPFR already installed. Skipping..."; \
-  	fi
+clean:
+	rm -r -f ../lib
+	rm -r -f ../tmp
+	rm -r -f ../build
+	rm -r -f ../profiling/profiling
+	rm -r -f ../pack
+	rm -r -f backend/operation_tests
 
 clone_install_raylib:
-	@if [ ! -f "../lib/libraylib.a" ] || [ ! -f "frontend/raylib.h" ]; then \
+	@if [ ! -f "../lib/libraylib.a" ] || [ ! -f "../lib/raylib.h" ]; then \
 		cd ../tmp && \
 		git clone --depth 1 https://github.com/raysan5/raylib.git && \
 		cd raylib/src && \
 		make PLATFORM=PLATFORM_DESKTOP && \
-		mv libraylib.a ../../../lib/ && \
-		cp raylib.h ../../../src/frontend/.; \
+		cp libraylib.a ../../../lib/ && \
+		cp raylib.h ../../../lib/.; \
 	else \
 		echo "Raylib has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
 clone_install_raygui:
-	@if [ ! -f "frontend/raygui.h" ] || [ ! -f "frontend/style_jungle.h" ]; then \
+	@if [ ! -f "../lib/raygui.h" ] || [ ! -f "../lib/style_jungle.h" ]; then \
 		cd ../tmp && \
 		git clone --depth 1 https://github.com/raysan5/raygui.git && \
-		cp ../tmp/raygui/src/raygui.h ../src/frontend/. && \
-		cp ../tmp/raygui/styles/jungle/style_jungle.h ../src/frontend/style_jungle.h; \
+		cp ../tmp/raygui/src/raygui.h ../lib/. && \
+		cp ../tmp/raygui/styles/jungle/style_jungle.h ../lib/style_jungle.h; \
 	else \
 		echo "Raygui has already been cloned from GitHUB. Skipping installation!"; \
 	fi
 
-clean:
-	rm -f frontend/main
-	rm -f frontend/operation.h
-	rm -f frontend/style_jungle.h
-	rm -f raylib.h
-	rm -f raygui.h
-	rm -f backend/gmp.h
-	rm -f backend/mpfr.h
-	rm -r -f ../lib
-	rm -r -f ../tmp
+
+
+

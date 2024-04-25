@@ -1,0 +1,8 @@
+[Desktop Entry]
+Categories=Qt;Game;
+Exec=/opt/IVS_Calc/calc
+GenericName=IVS_Calc
+Icon=IVScalc
+Name=IVS_Calc
+Type=Application
+X-KDE-StartupNotify=false

@@ -180,7 +180,7 @@ lib/
 lib/**
 src/raygui.h
 src/raylib.h
-src/main
+src/calc
 
 config
 description
@@ -188,9 +188,13 @@ FETCH_HEAD
 HEAD
 .idea/
 
+test
 src/backend/gmp.h
 src/backend/mpfr.h
 src/frontend/raygui.h
 src/frontend/raylib.h
 src/frontend/style_jungle.h
 src/frontend/operation.h
+profiling/profiling
+build
+build/calc

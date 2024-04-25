@@ -1,7 +1,7 @@
 Prostredi
 ---------
 
-Linux - Manjaro 64bit
+Linux - Manjaro 64bit (GLIBC 2.38 >=)
 
 Autori
 ------
