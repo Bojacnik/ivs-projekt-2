@@ -48,7 +48,7 @@ main: frontend/main.c
 prof: ../profiling/profiling.c backend/operation.c
 	$(CC) $(INCLUDE) ../profiling/profiling.c backend/operation.c -o ../profiling/profiling -pg $(BLIBS) && \
 	../profiling/profiling < ../profiling/testp.txt && \
-	gprof ../profiling/profiling gmon.out > ../profiling/analysis.txt
+	gprof ../profiling/profiling gmon.out > ../profiling/vystup.txt
 	rm -f gmon.out
 
 clean:
