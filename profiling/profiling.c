@@ -1,7 +1,3 @@
-#ifndef DEBUG
-#define DEBUG
-#endif
-
 #define PRECISION_DECIMALS 100
 #define PRECISION_BITS ceil(PRECISION_DECIMALS * log2(10))
 #define ROUNDING MPFR_RNDZ
@@ -223,6 +219,7 @@ int main(void) {
     printf("Internal function is: %5s\n", B);   //THIS IS FOR TEST ONLY
     printf("Result: %5s\n", final_result);  //THIS IS FOR TEST ONLY
 #endif
+    printf("%s\n", final_result);
     free(array); // free array of input numbers
     return 0;
 }
