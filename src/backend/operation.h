@@ -6,6 +6,12 @@
  * allocated string that the caller must free(). On invalid input or an
  * undefined result (division by zero, even root of a negative number, ...)
  * the returned string is OP_ERROR.
+ *
+ * Out of memory: the functions return NULL, and op_is_error(NULL) is true,
+ * so callers can treat both cases with one check. NULL operands are accepted
+ * and give an error result, so a failed result can be passed on safely.
+ * Note that MPFR/GMP abort the program if their own internal allocations
+ * fail; that is GMP's documented behaviour and cannot be intercepted.
  */
 #pragma once
 
@@ -36,9 +42,9 @@ char *op_tan(const char *angle, OpAngleUnit unit);
 
 /**
  * @brief Re-formats a number to at most @p digits significant digits.
- * @return New string, or OP_ERROR if @p number is not a valid number.
+ * @return New string, OP_ERROR if @p number is not a valid number, NULL if out of memory.
  */
 char *op_format(const char *number, int digits);
 
-/** @return true if @p result is the error value OP_ERROR. */
+/** @return true if @p result is OP_ERROR or NULL (out of memory). */
 bool op_is_error(const char *result);

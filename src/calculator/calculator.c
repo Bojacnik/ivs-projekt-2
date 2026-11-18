@@ -60,11 +60,16 @@ static char *compute(const Calculator *calc, CalcAction op, const char *a, const
 	}
 }
 
-/** Computes @p op and shows its result rounded for the display. */
+/**
+ * @brief Computes @p op and shows its result rounded for the display.
+ *
+ * If memory runs out (an op_* function returns NULL) the display shows
+ * OP_ERROR; the display buffer itself is static, so it never fails.
+ */
 static void show_result(Calculator *calc, CalcAction op, const char *a, const char *b) {
 	char *raw = compute(calc, op, a, b);
-	char *display = op_format(raw, CALC_DISPLAY_DIGITS);
-	set_display(calc, display ? display : OP_ERROR);
+	char *display = raw != NULL ? op_format(raw, CALC_DISPLAY_DIGITS) : NULL;
+	set_display(calc, display != NULL ? display : OP_ERROR);
 	free(raw);
 	free(display);
 
@@ -279,6 +284,9 @@ bool calc_paste(Calculator *calc, const char *text) {
 	}
 
 	char *number = op_format(buffer, CALC_DISPLAY_DIGITS);
+	if (number == NULL) {
+		return false; // out of memory: keep the current display
+	}
 	bool ok = !op_is_error(number) && strlen(number) <= CALC_DISPLAY_MAX_LEN;
 	if (ok) {
 		calc->error = false;

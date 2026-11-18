@@ -5,7 +5,6 @@
 #include "operation.h"
 
 #include <limits.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <mpfr.h>
@@ -20,15 +19,16 @@
 typedef int (*binary_fn)(mpfr_ptr, mpfr_srcptr, mpfr_srcptr, mpfr_rnd_t);
 typedef int (*unary_fn)(mpfr_ptr, mpfr_srcptr, mpfr_rnd_t);
 
+/** @return New copy of @p str, or NULL if out of memory. */
 static char *copy_string(const char *str) {
 	char *copy = malloc(strlen(str) + 1);
 	if (copy == NULL) {
-		fprintf(stderr, "Out of memory\n");
 		return NULL;
 	}
 	return strcpy(copy, str);
 }
 
+/** @return New OP_ERROR string, or NULL if out of memory. */
 static char *error_result(void) { return copy_string(OP_ERROR); }
 
 /**
@@ -53,8 +53,9 @@ static char *to_string(mpfr_t number, int digits) {
 
 	char *formatted = NULL;
 	if (mpfr_asprintf(&formatted, "%.*Rg", digits, number) < 0) {
-		return error_result();
+		return NULL; // allocation inside MPFR failed
 	}
+	// Copy so callers can release every result with free(), not mpfr_free_str().
 	char *result = copy_string(formatted);
 	mpfr_free_str(formatted);
 	return result;

@@ -74,8 +74,18 @@ run:
 test: | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(TEST_DIR)/operation_tests.c $(BACKEND_SRC) -o $(BUILD_DIR)/operation_tests $(BLIBS)
 	$(CC) $(CFLAGS) $(TEST_DIR)/calculator_tests.c $(CALCULATOR_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/calculator_tests $(BLIBS)
+	$(CC) $(CFLAGS) -Wl,--wrap=malloc $(TEST_DIR)/alloc_failure_tests.c $(CALCULATOR_SRC) $(BACKEND_SRC) \
+		-o $(BUILD_DIR)/alloc_failure_tests $(BLIBS)
+	$(CC) $(CFLAGS) -Wl,--wrap=malloc $(TEST_DIR)/fail_malloc.c $(PROFILING_SRC) $(BACKEND_SRC) \
+		-o $(BUILD_DIR)/profiling_fail_malloc $(BLIBS)
 	./$(BUILD_DIR)/operation_tests
 	./$(BUILD_DIR)/calculator_tests
+	./$(BUILD_DIR)/alloc_failure_tests
+	@# Profiling must print the right result or "Out of memory" whichever malloc fails.
+	@for i in $$(seq 0 40); do \
+		out=$$(FAIL_AT=$$i ./$(BUILD_DIR)/profiling_fail_malloc < $(PROF_DIR)/testp.txt 2>&1); \
+		case "$$out" in 10|"Out of memory") ;; *) echo "FAIL: profiling, malloc #$$i failing: $$out"; exit 1;; esac; \
+	done && echo "profiling: handles every failing allocation"
 
 profiling: | $(BUILD_DIR)
 	$(CC) $(CFLAGS) $(PROFILING_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/profiling -pg $(BLIBS)
