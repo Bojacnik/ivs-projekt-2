@@ -49,6 +49,12 @@ jobs:
           key: gui-deps-${{ runner.os }}-${{ hashFiles('Makefile') }}
       - name: Build Debian package
         run: make package
+      - name: Check the GUI uses X11, not Wayland (GNOME title bar)
+        run: |
+          backends=$(strings build/calc | grep -E '^3\.[0-9]+\.[0-9]+ ' | head -1)
+          echo "GLFW: $backends"
+          echo "$backends" | grep -q X11
+          ! echo "$backends" | grep -q Wayland
       - uses: actions/upload-artifact@v4
         with:
           name: deb-package

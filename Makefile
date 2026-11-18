@@ -10,6 +10,11 @@ endif
 RAYLIB_VERSION = 6.2
 RAYGUI_VERSION = 5.0
 
+# Build GLFW for X11 only. With Wayland enabled, GNOME (which has no server-side
+# decorations) shows the window without a title bar or close/minimize buttons
+# unless libdecor is installed. Via XWayland, GNOME draws the normal title bar.
+RAYLIB_FLAGS = GLFW_LINUX_ENABLE_WAYLAND=FALSE GLFW_LINUX_ENABLE_X11=TRUE
+
 SRC_DIR   = src
 TEST_DIR  = tests
 BUILD_DIR = build
@@ -45,7 +50,7 @@ deps: $(RAYLIB_STAMP) $(RAYGUI_STAMP)
 $(RAYLIB_STAMP):
 	rm -rf $(TMP_DIR)/raylib $(LIB_DIR)/.raylib-* && mkdir -p $(TMP_DIR) $(LIB_DIR)
 	git clone --depth 1 --branch $(RAYLIB_VERSION) https://github.com/raysan5/raylib.git $(TMP_DIR)/raylib
-	$(MAKE) -C $(TMP_DIR)/raylib/src PLATFORM=PLATFORM_DESKTOP
+	$(MAKE) -C $(TMP_DIR)/raylib/src PLATFORM=PLATFORM_DESKTOP $(RAYLIB_FLAGS)
 	cp $(TMP_DIR)/raylib/src/libraylib.a $(TMP_DIR)/raylib/src/raylib.h $(LIB_DIR)/
 	touch $@
 
