@@ -6,23 +6,68 @@ on:
   pull_request:
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+  format:
+    name: Code style
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y clang-format-18
+      - run: make format-check
 
+  test:
+    name: Tests${{ matrix.sanitize == '1' && ' (ASan + UBSan)' || '' }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        sanitize: ['0', '1']
+    steps:
+      - uses: actions/checkout@v4
+      - run: sudo apt-get update && sudo apt-get install -y libmpfr-dev libgmp-dev
+      - name: Unit tests
+        run: make test SANITIZE=${{ matrix.sanitize }}
+      - name: Profiling program
+        run: |
+          make profiling SANITIZE=${{ matrix.sanitize }}
+          test "$(./build/profiling < profiling/testp.txt)" = "10"
+
+  build:
+    name: Build and package
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libmpfr-dev libgmp-dev \
             libasound2-dev libx11-dev libxrandr-dev libxi-dev libgl1-mesa-dev \
             libglu1-mesa-dev libxcursor-dev libxinerama-dev
+      - name: Cache raylib + raygui
+        uses: actions/cache@v4
+        with:
+          path: lib
+          key: gui-deps-${{ runner.os }}-${{ hashFiles('Makefile') }}
+      - name: Build Debian package
+        run: make package
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb-package
+          path: build/package/*.deb
 
-      - name: Run tests
-        run: make test
-
-      - name: Build profiling
-        run: make profiling
-
-      - name: Build calculator (raylib + raygui)
-        run: make deps main
+  docs:
+    name: Documentation
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Doxygen and LaTeX
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends doxygen \
+            texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-plain-generic
+      - run: make doc
+      - uses: actions/upload-artifact@v4
+        with:
+          name: documentation
+          path: |
+            build/doc.pdf
+            build/doc/html

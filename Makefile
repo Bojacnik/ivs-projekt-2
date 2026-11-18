@@ -1,5 +1,14 @@
-CC = gcc
+CC     = gcc
 CFLAGS = -Wall -Wextra -std=gnu11
+
+# make SANITIZE=1 test  -> build with AddressSanitizer + UndefinedBehaviorSanitizer
+ifeq ($(SANITIZE),1)
+CFLAGS += -g -fsanitize=address,undefined -fno-omit-frame-pointer
+endif
+
+# Pinned GUI dependency versions (git tags)
+RAYLIB_VERSION = 6.2
+RAYGUI_VERSION = 5.0
 
 SRC_DIR   = src
 TEST_DIR  = tests
@@ -13,74 +22,100 @@ INCLUDE = -L$(LIB_DIR) -I$(LIB_DIR)
 BLIBS   = -lmpfr -lgmp -lm
 FLIBS   = -lraylib -lGL -lpthread -ldl -lrt -lX11
 
-BACKEND_SRC   = $(SRC_DIR)/backend/operation.c
-FRONTEND_SRC  = $(SRC_DIR)/frontend/main.c
-PROFILING_SRC = $(SRC_DIR)/profiling/profiling.c
-TEST_SRC      = $(TEST_DIR)/operation_tests.c
+BACKEND_SRC    = $(SRC_DIR)/backend/operation.c
+CALCULATOR_SRC = $(SRC_DIR)/calculator/calculator.c
+FRONTEND_SRC   = $(SRC_DIR)/frontend/main.c
+PROFILING_SRC  = $(SRC_DIR)/profiling/profiling.c
+
+FORMAT_FILES = $(wildcard $(SRC_DIR)/*/*.c $(SRC_DIR)/*/*.h $(TEST_DIR)/*.c $(TEST_DIR)/*.h)
+CLANG_FORMAT ?= clang-format-18
+
+RAYLIB_STAMP = $(LIB_DIR)/.raylib-$(RAYLIB_VERSION)
+RAYGUI_STAMP = $(LIB_DIR)/.raygui-$(RAYGUI_VERSION)
 
 .DEFAULT_GOAL := all
-.PHONY: all main run test deps dirs profiling prof doc pack clean clone_install_raylib clone_install_raygui
+.PHONY: all main run test deps profiling prof doc doc-html package pack format format-check clean
 
 all: deps main run
 
-dirs:
-	mkdir -p $(TMP_DIR) $(LIB_DIR) $(BUILD_DIR)
+## Dependencies (raylib + raygui), downloaded once per pinned version ##
 
-deps: dirs clone_install_raylib clone_install_raygui
+deps: $(RAYLIB_STAMP) $(RAYGUI_STAMP)
 
-main: $(FRONTEND_SRC) $(BACKEND_SRC) | dirs
-	$(CC) $(CFLAGS) $(INCLUDE) $(FRONTEND_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/calc $(FLIBS) $(BLIBS)
+$(RAYLIB_STAMP):
+	rm -rf $(TMP_DIR)/raylib $(LIB_DIR)/.raylib-* && mkdir -p $(TMP_DIR) $(LIB_DIR)
+	git clone --depth 1 --branch $(RAYLIB_VERSION) https://github.com/raysan5/raylib.git $(TMP_DIR)/raylib
+	$(MAKE) -C $(TMP_DIR)/raylib/src PLATFORM=PLATFORM_DESKTOP
+	cp $(TMP_DIR)/raylib/src/libraylib.a $(TMP_DIR)/raylib/src/raylib.h $(LIB_DIR)/
+	touch $@
+
+$(RAYGUI_STAMP):
+	rm -rf $(TMP_DIR)/raygui $(LIB_DIR)/.raygui-* && mkdir -p $(TMP_DIR) $(LIB_DIR)
+	git clone --depth 1 --branch $(RAYGUI_VERSION) https://github.com/raysan5/raygui.git $(TMP_DIR)/raygui
+	cp $(TMP_DIR)/raygui/src/raygui.h $(TMP_DIR)/raygui/styles/jungle/style_jungle.h $(LIB_DIR)/
+	touch $@
+
+## Build ##
+
+$(BUILD_DIR):
+	mkdir -p $@
+
+main: deps | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(INCLUDE) $(FRONTEND_SRC) $(CALCULATOR_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/calc $(FLIBS) $(BLIBS)
 
 run:
 	./$(BUILD_DIR)/calc
 
-test: | dirs
-	$(CC) $(CFLAGS) $(INCLUDE) $(TEST_SRC) $(BACKEND_SRC) -g3 -o $(BUILD_DIR)/test $(BLIBS)
-	./$(BUILD_DIR)/test
+test: | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(TEST_DIR)/operation_tests.c $(BACKEND_SRC) -o $(BUILD_DIR)/operation_tests $(BLIBS)
+	$(CC) $(CFLAGS) $(TEST_DIR)/calculator_tests.c $(CALCULATOR_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/calculator_tests $(BLIBS)
+	./$(BUILD_DIR)/operation_tests
+	./$(BUILD_DIR)/calculator_tests
 
-profiling: $(PROFILING_SRC) $(BACKEND_SRC) | dirs
-	$(CC) $(CFLAGS) $(INCLUDE) $(PROFILING_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/profiling -pg $(BLIBS)
+profiling: | $(BUILD_DIR)
+	$(CC) $(CFLAGS) $(PROFILING_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/profiling -pg $(BLIBS)
 
 prof: profiling
 	./$(BUILD_DIR)/profiling < $(PROF_DIR)/testp.txt && \
 	gprof $(BUILD_DIR)/profiling gmon.out > $(PROF_DIR)/vystup.txt
 	rm -f gmon.out
 
-doc:
-	doxygen Doxyfile && \
-	$(MAKE) -C $(BUILD_DIR)/doc/latex && \
-	cp $(BUILD_DIR)/doc/latex/refman.pdf $(DOCS_DIR)/doc.pdf
+## Documentation (Doxygen) ##
 
+doc-html:
+	doxygen Doxyfile
+
+# Requires a LaTeX installation; result: build/doc.pdf
+doc: doc-html
+	$(MAKE) -C $(BUILD_DIR)/doc/latex
+	cp $(BUILD_DIR)/doc/latex/refman.pdf $(BUILD_DIR)/doc.pdf
+
+## Packaging ##
+
+# Debian package via CPack; result: build/package/*.deb
+package: main profiling
+	cmake -S . -B $(BUILD_DIR)/cmake
+	cd $(BUILD_DIR)/cmake && cpack -B ../package
+
+# Archive for the IVS course submission
 pack: xnemecv00.zip
 
 xnemecv00.zip:
 	rm -rf pack && mkdir -p pack
 	cp $(DOCS_DIR)/project/hodnoceni.txt $(DOCS_DIR)/project/odevzdani.txt pack/
-	cp -R $(SRC_DIR)/frontend $(SRC_DIR)/backend pack/
-	cp $(TEST_SRC) $(PROFILING_SRC) pack/
+	cp -R $(SRC_DIR)/* pack/
+	cp $(TEST_DIR)/* pack/
 	cp $(DOCS_DIR)/UzivatelskaDokumentace.pdf pack/
 	zip -r $@ pack/
 	rm -rf pack
 
+## Code style ##
+
+format:
+	$(CLANG_FORMAT) -i $(FORMAT_FILES)
+
+format-check:
+	$(CLANG_FORMAT) --dry-run --Werror $(FORMAT_FILES)
+
 clean:
 	rm -rf $(LIB_DIR) $(TMP_DIR) $(BUILD_DIR) pack xnemecv00.zip gmon.out
-
-clone_install_raylib:
-	@if [ ! -f "$(LIB_DIR)/libraylib.a" ] || [ ! -f "$(LIB_DIR)/raylib.h" ]; then \
-		cd $(TMP_DIR) && \
-		git clone --depth 1 https://github.com/raysan5/raylib.git && \
-		$(MAKE) -C raylib/src PLATFORM=PLATFORM_DESKTOP && \
-		cp raylib/src/libraylib.a raylib/src/raylib.h ../$(LIB_DIR)/; \
-	else \
-		echo "Raylib has already been cloned from GitHub. Skipping installation!"; \
-	fi
-
-clone_install_raygui:
-	@if [ ! -f "$(LIB_DIR)/raygui.h" ] || [ ! -f "$(LIB_DIR)/style_jungle.h" ]; then \
-		cd $(TMP_DIR) && \
-		git clone --depth 1 https://github.com/raysan5/raygui.git && \
-		cp raygui/src/raygui.h ../$(LIB_DIR)/ && \
-		cp raygui/styles/jungle/style_jungle.h ../$(LIB_DIR)/style_jungle.h; \
-	else \
-		echo "Raygui has already been cloned from GitHub. Skipping installation!"; \
-	fi
