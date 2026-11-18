@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../src/backend/operation.h"
+#include "../backend/operation.h"
 
 //Functions declaration //
 long double *handleInput(size_t *N); //this function gets N pointer and returns array of numbers added manually by user
