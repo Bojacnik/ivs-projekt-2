@@ -1,0 +1,9 @@
+# Normalise line endings (matches .editorconfig: LF)
+* text=auto eol=lf
+
+*.pdf binary
+*.png binary
+*.deb binary
+
+# Keep generated/vendored files out of GitHub's language statistics
+docs/** linguist-documentation

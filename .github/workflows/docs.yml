@@ -1,0 +1,53 @@
+name: Documentation
+
+# Doxygen + LaTeX takes ~20 min to install, so the PDF is built nightly, and
+# only when master changed since the last successful build. Run manually from
+# the Actions tab to build it right away.
+on:
+  schedule:
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+
+jobs:
+  docs:
+    name: Documentation
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Skip if nothing changed since the last successful build
+        id: changed
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          last=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow docs.yml --status success \
+                 --limit 1 --json headSha --jq '.[0].headSha // ""')
+          if [ "$GITHUB_EVENT_NAME" = schedule ] && [ "$last" = "$GITHUB_SHA" ]; then
+            echo "No changes since $last, skipping."
+            echo "build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.changed.outputs.build == 'true'
+
+      - name: Install Doxygen and LaTeX
+        if: steps.changed.outputs.build == 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends doxygen \
+            texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-plain-generic
+
+      - run: make doc
+        if: steps.changed.outputs.build == 'true'
+
+      - uses: actions/upload-artifact@v4
+        if: steps.changed.outputs.build == 'true'
+        with:
+          name: documentation
+          path: |
+            build/doc.pdf
+            build/doc/html
