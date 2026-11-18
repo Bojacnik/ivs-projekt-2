@@ -1,9 +1,9 @@
 
-#include "../../lib/raylib.h"
+#include "raylib.h"
 
 #define RAYGUI_IMPLEMENTATION
-#include "../../lib/raygui.h"
-#include "../../lib/style_jungle.h"
+#include "raygui.h"
+#include "style_jungle.h"
 #include "../backend/operation.h"
 
 enum operation{plus = 1, minus, mult, division, sinus, fact, root, power };

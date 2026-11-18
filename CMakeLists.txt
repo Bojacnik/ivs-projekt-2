@@ -14,12 +14,12 @@ libglu1-mesa-dev, libxcursor-dev, libxinerama-dev, libwayland-dev, libxkbcommon-
 install(FILES build/calc
         DESTINATION /opt/${PROJECT_NAME}
         PERMISSIONS WORLD_EXECUTE GROUP_EXECUTE OWNER_READ OWNER_WRITE)
-install(FILES IVScalc.png
+install(FILES packaging/IVScalc.png
         DESTINATION /usr/share/icons/hicolor/32x32/apps)
-install(FILES profiling/profiling
+install(FILES build/profiling
         DESTINATION /opt/${PROJECT_NAME}
         PERMISSIONS WORLD_EXECUTE OWNER_WRITE OWNER_READ)
-install(FILES IVS_Calc.desktop
+install(FILES packaging/IVS_Calc.desktop
         DESTINATION /usr/share/applications)
 install(FILES LICENSE
         DESTINATION /opt/${PROJECT_NAME})

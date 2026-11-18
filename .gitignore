@@ -174,27 +174,11 @@ fabric.properties
 
 # End of https://www.toptal.com/developers/gitignore/api/c,clion,cmake
 
-tmp/
-tmp/**
-lib/
-lib/**
-src/raygui.h
-src/raylib.h
-src/calc
-
-config
-description
-FETCH_HEAD
-HEAD
+# Project build outputs / fetched dependencies
+/build/
+/lib/
+/tmp/
+/pack/
+/xnemecv00.zip
+gmon.out
 .idea/
-
-test
-src/backend/gmp.h
-src/backend/mpfr.h
-src/frontend/raygui.h
-src/frontend/raylib.h
-src/frontend/style_jungle.h
-src/frontend/operation.h
-profiling/profiling
-build
-build/calc
