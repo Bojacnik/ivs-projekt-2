@@ -1,4 +1,5 @@
 CC = gcc
+CFLAGS = -Wall -Wextra -std=gnu11
 
 SRC_DIR   = src
 TEST_DIR  = tests
@@ -28,17 +29,17 @@ dirs:
 deps: dirs clone_install_raylib clone_install_raygui
 
 main: $(FRONTEND_SRC) $(BACKEND_SRC) | dirs
-	$(CC) $(INCLUDE) $(FRONTEND_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/calc $(FLIBS) $(BLIBS)
+	$(CC) $(CFLAGS) $(INCLUDE) $(FRONTEND_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/calc $(FLIBS) $(BLIBS)
 
 run:
 	./$(BUILD_DIR)/calc
 
 test: | dirs
-	$(CC) $(INCLUDE) $(TEST_SRC) $(BACKEND_SRC) -g3 -o $(BUILD_DIR)/test $(BLIBS)
+	$(CC) $(CFLAGS) $(INCLUDE) $(TEST_SRC) $(BACKEND_SRC) -g3 -o $(BUILD_DIR)/test $(BLIBS)
 	./$(BUILD_DIR)/test
 
 profiling: $(PROFILING_SRC) $(BACKEND_SRC) | dirs
-	$(CC) $(INCLUDE) $(PROFILING_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/profiling -pg $(BLIBS)
+	$(CC) $(CFLAGS) $(INCLUDE) $(PROFILING_SRC) $(BACKEND_SRC) -o $(BUILD_DIR)/profiling -pg $(BLIBS)
 
 prof: profiling
 	./$(BUILD_DIR)/profiling < $(PROF_DIR)/testp.txt && \
