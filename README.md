@@ -67,7 +67,8 @@ docs/           uživatelská dokumentace, obrázky, návrh GUI, podklady k proj
 
 1. Zvyšte verzi v `CMakeLists.txt` (`project(IVS_Calc VERSION x.y.z)`) a `Doxyfile` (`PROJECT_NUMBER`).
 2. V `CHANGELOG.md` přejmenujte `[Unreleased]` na `[x.y.z] - datum` a přidejte novou prázdnou `[Unreleased]`.
-3. `git tag vx.y.z && git push origin vx.y.z`
+3. Buď `git tag vx.y.z && git push origin vx.y.z`, nebo na GitHubu *Actions → Release → Run workflow*
+   (na větvi `master`) – workflow pak tag vytvoří samo podle verze v `CMakeLists.txt`.
 
 CI sestaví balíček `.deb` a dokumentaci a připojí je k novému GitHub Release; popis vydání se
 převezme z `CHANGELOG.md`.
