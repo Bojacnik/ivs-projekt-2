@@ -60,20 +60,3 @@ jobs:
           name: deb-package
           path: build/package/*.deb
 
-  docs:
-    name: Documentation
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Doxygen and LaTeX
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends doxygen \
-            texlive-latex-recommended texlive-latex-extra texlive-fonts-recommended texlive-plain-generic
-      - run: make doc
-      - uses: actions/upload-artifact@v4
-        with:
-          name: documentation
-          path: |
-            build/doc.pdf
-            build/doc/html

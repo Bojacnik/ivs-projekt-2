@@ -1,0 +1,37 @@
+name: Chyba
+description: Něco nefunguje, jak má
+labels: [bug]
+body:
+  - type: textarea
+    id: steps
+    attributes:
+      label: Postup
+      description: Co jste zadali (tlačítka nebo klávesy)?
+      placeholder: "2 + 3 * 4 ="
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Očekávaný výsledek
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Skutečný výsledek
+      description: Případně přiložte snímek obrazovky.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Verze
+      description: Např. 1.0.0, nebo commit, pokud sestavujete sami.
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Systém
+      placeholder: "Ubuntu 24.04, GNOME (Wayland)"
