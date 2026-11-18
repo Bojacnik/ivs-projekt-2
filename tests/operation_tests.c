@@ -2,23 +2,12 @@
  * @file operation_tests.c
  * @brief Unit tests for the math library (src/backend/operation.c).
  */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "../src/backend/operation.h"
-
-static int failures = 0;
-static int total = 0;
+#include "test_util.h"
 
 /** Checks that @p actual equals @p expected, then frees @p actual. */
 static void check(const char *expr, char *actual, const char *expected) {
-	total++;
-	if (actual == NULL || strcmp(actual, expected) != 0) {
-		failures++;
-		fprintf(stderr, "FAIL: %s\n  expected: %s\n  actual:   %s\n", expr, expected,
-		        actual ? actual : "(null)");
-	}
+	check_str(expr, actual, expected);
 	free(actual);
 }
 
@@ -29,7 +18,7 @@ static void check_rounded(const char *expr, char *actual, int digits, const char
 	check(expr, rounded, expected);
 }
 
-#define CHECK(call, expected) check(#call, (call), (expected))
+#define CHECK(call, expected)                 check(#call, (call), (expected))
 #define CHECK_ROUNDED(call, digits, expected) check_rounded(#call, (call), (digits), (expected))
 
 static void test_add(void) {
@@ -98,18 +87,31 @@ static void test_root(void) {
 	CHECK_ROUNDED(op_root("2", "0.5"), 6, "4");
 }
 
-static void test_sin(void) {
-	CHECK(op_sin("0"), "0");
-	CHECK_ROUNDED(op_sin("2"), 6, "0.909297");
-	CHECK_ROUNDED(op_sin("3.14"), 6, "0.00159265");
-	CHECK_ROUNDED(op_sin("-2"), 6, "-0.909297");
+static void test_trigonometry(void) {
+	CHECK(op_sin("0", OP_RADIANS), "0");
+	CHECK_ROUNDED(op_sin("2", OP_RADIANS), 6, "0.909297");
+	CHECK_ROUNDED(op_sin("3.14", OP_RADIANS), 6, "0.00159265");
+	CHECK_ROUNDED(op_sin("-2", OP_RADIANS), 6, "-0.909297");
+	CHECK_ROUNDED(op_cos("1", OP_RADIANS), 6, "0.540302");
+	CHECK_ROUNDED(op_tan("1", OP_RADIANS), 6, "1.55741");
+
+	// Degrees are exact at the special angles.
+	CHECK(op_sin("30", OP_DEGREES), "0.5");
+	CHECK(op_sin("180", OP_DEGREES), "0");
+	CHECK(op_sin("-90", OP_DEGREES), "-1");
+	CHECK(op_cos("60", OP_DEGREES), "0.5");
+	CHECK(op_cos("90", OP_DEGREES), "0");
+	CHECK(op_tan("45", OP_DEGREES), "1");
+	CHECK(op_tan("90", OP_DEGREES), OP_ERROR);
+	CHECK_ROUNDED(op_sin("45", OP_DEGREES), 6, "0.707107");
 }
 
 static void test_invalid_input(void) {
 	CHECK(op_add("abc", "1"), OP_ERROR);
 	CHECK(op_add("1", ""), OP_ERROR);
 	CHECK(op_add("1", NULL), OP_ERROR);
-	CHECK(op_sin(OP_ERROR), OP_ERROR);
+	CHECK(op_sin(OP_ERROR, OP_RADIANS), OP_ERROR);
+	CHECK(op_cos("x", OP_DEGREES), OP_ERROR);
 	CHECK(op_format("12abc", 10), OP_ERROR);
 }
 
@@ -129,14 +131,9 @@ int main(void) {
 	test_factorial();
 	test_pow();
 	test_root();
-	test_sin();
+	test_trigonometry();
 	test_invalid_input();
 	test_format();
 
-	if (failures > 0) {
-		fprintf(stderr, "%d of %d tests failed\n", failures, total);
-		return EXIT_FAILURE;
-	}
-	printf("All %d tests passed\n", total);
-	return EXIT_SUCCESS;
+	return test_report("operation");
 }

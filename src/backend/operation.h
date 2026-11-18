@@ -17,6 +17,12 @@
 /** Number of significant digits in strings returned by the op_* functions. */
 #define OP_RESULT_DIGITS 30
 
+/** Unit of the argument of trigonometric functions. */
+typedef enum {
+	OP_RADIANS,
+	OP_DEGREES,
+} OpAngleUnit;
+
 char *op_add(const char *addend1, const char *addend2);
 char *op_sub(const char *minuend, const char *subtrahend);
 char *op_mul(const char *multiplicand, const char *multiplier);
@@ -24,7 +30,9 @@ char *op_div(const char *dividend, const char *divisor);
 char *op_pow(const char *base, const char *exponent);
 char *op_root(const char *radicand, const char *index);
 char *op_factorial(const char *n);
-char *op_sin(const char *argument);
+char *op_sin(const char *angle, OpAngleUnit unit);
+char *op_cos(const char *angle, OpAngleUnit unit);
+char *op_tan(const char *angle, OpAngleUnit unit);
 
 /**
  * @brief Re-formats a number to at most @p digits significant digits.

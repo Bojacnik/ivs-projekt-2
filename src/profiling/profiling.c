@@ -57,9 +57,9 @@ static char *standard_deviation(size_t count, const char *sum, const char *sum_s
 
 	char *mean = op_div(sum, n);
 
-	char *tmp = op_mul(mean, mean);       // mean^2
-	update(&tmp, op_mul(n, tmp));         // N * mean^2
-	update(&tmp, op_sub(sum_sq, tmp));    // sum(x^2) - N * mean^2
+	char *tmp = op_mul(mean, mean);    // mean^2
+	update(&tmp, op_mul(n, tmp));      // N * mean^2
+	update(&tmp, op_sub(sum_sq, tmp)); // sum(x^2) - N * mean^2
 
 	char *n_minus_one = op_sub(n, "1");
 	update(&tmp, op_div(tmp, n_minus_one)); // variance

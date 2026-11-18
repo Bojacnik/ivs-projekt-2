@@ -12,7 +12,7 @@
 
 /** Working precision: ~100 decimal digits. */
 #define PRECISION_BITS 333
-#define ROUNDING MPFR_RNDN
+#define ROUNDING       MPFR_RNDN
 
 /** Largest n accepted by op_factorial. */
 #define FACTORIAL_MAX 10000UL
@@ -29,17 +29,13 @@ static char *copy_string(const char *str) {
 	return strcpy(copy, str);
 }
 
-static char *error_result(void) {
-	return copy_string(OP_ERROR);
-}
+static char *error_result(void) { return copy_string(OP_ERROR); }
 
 /**
  * @brief Parses a decimal string into an already initialised number.
  * @return true if the whole string is a valid number.
  */
-static bool parse(mpfr_t rop, const char *str) {
-	return str != NULL && mpfr_set_str(rop, str, 10, ROUNDING) == 0;
-}
+static bool parse(mpfr_t rop, const char *str) { return str != NULL && mpfr_set_str(rop, str, 10, ROUNDING) == 0; }
 
 /**
  * @brief Formats a number with at most @p digits significant digits.
@@ -66,7 +62,7 @@ static char *to_string(mpfr_t number, int digits) {
 
 static char *binary_op(const char *a, const char *b, binary_fn fn) {
 	mpfr_t x, y;
-	mpfr_inits2(PRECISION_BITS, x, y, (mpfr_ptr) NULL);
+	mpfr_inits2(PRECISION_BITS, x, y, (mpfr_ptr)NULL);
 
 	char *result;
 	if (parse(x, a) && parse(y, b)) {
@@ -76,7 +72,7 @@ static char *binary_op(const char *a, const char *b, binary_fn fn) {
 		result = error_result();
 	}
 
-	mpfr_clears(x, y, (mpfr_ptr) NULL);
+	mpfr_clears(x, y, (mpfr_ptr)NULL);
 	return result;
 }
 
@@ -109,7 +105,7 @@ static int root(mpfr_ptr rop, mpfr_srcptr x, mpfr_srcptr index, mpfr_rnd_t rnd) 
 	}
 	if (mpfr_integer_p(index) && mpfr_cmpabs_ui(index, LONG_MAX) <= 0) {
 		long n = mpfr_get_si(index, rnd);
-		int ret = mpfr_rootn_ui(rop, x, (unsigned long) labs(n), rnd);
+		int ret = mpfr_rootn_ui(rop, x, (unsigned long)labs(n), rnd);
 		return n > 0 ? ret : mpfr_ui_div(rop, 1, rop, rnd);
 	}
 
@@ -133,44 +129,62 @@ static int factorial(mpfr_ptr rop, mpfr_srcptr n, mpfr_rnd_t rnd) {
 }
 
 /** @brief Sum of two numbers. */
-char *op_add(const char *addend1, const char *addend2) {
-	return binary_op(addend1, addend2, mpfr_add);
-}
+char *op_add(const char *addend1, const char *addend2) { return binary_op(addend1, addend2, mpfr_add); }
 
 /** @brief Difference minuend - subtrahend. */
-char *op_sub(const char *minuend, const char *subtrahend) {
-	return binary_op(minuend, subtrahend, mpfr_sub);
-}
+char *op_sub(const char *minuend, const char *subtrahend) { return binary_op(minuend, subtrahend, mpfr_sub); }
 
 /** @brief Product of two numbers. */
-char *op_mul(const char *multiplicand, const char *multiplier) {
-	return binary_op(multiplicand, multiplier, mpfr_mul);
-}
+char *op_mul(const char *multiplicand, const char *multiplier) { return binary_op(multiplicand, multiplier, mpfr_mul); }
 
 /** @brief Quotient dividend / divisor; OP_ERROR when dividing by zero. */
-char *op_div(const char *dividend, const char *divisor) {
-	return binary_op(dividend, divisor, mpfr_div);
-}
+char *op_div(const char *dividend, const char *divisor) { return binary_op(dividend, divisor, mpfr_div); }
 
 /** @brief base raised to exponent. */
-char *op_pow(const char *base, const char *exponent) {
-	return binary_op(base, exponent, mpfr_pow);
-}
+char *op_pow(const char *base, const char *exponent) { return binary_op(base, exponent, mpfr_pow); }
 
 /** @brief index-th root of radicand; OP_ERROR for even roots of negatives. */
-char *op_root(const char *radicand, const char *index) {
-	return binary_op(radicand, index, root);
-}
+char *op_root(const char *radicand, const char *index) { return binary_op(radicand, index, root); }
 
 /** @brief n!; OP_ERROR unless n is an integer in [0, 10000]. */
-char *op_factorial(const char *n) {
-	return unary_op(n, factorial);
+char *op_factorial(const char *n) { return unary_op(n, factorial); }
+
+typedef int (*trig_unit_fn)(mpfr_ptr, mpfr_srcptr, unsigned long, mpfr_rnd_t);
+
+/**
+ * @brief Applies a trigonometric function to an angle.
+ *
+ * Degrees use the mpfr_*u functions (sin(2*pi*x/360)), which are exact for
+ * angles such as 180 or 90 degrees instead of returning a tiny rounding error.
+ */
+static char *trig_op(const char *angle, OpAngleUnit unit, unary_fn radians, trig_unit_fn degrees) {
+	mpfr_t x;
+	mpfr_init2(x, PRECISION_BITS);
+
+	char *result;
+	if (parse(x, angle)) {
+		if (unit == OP_DEGREES) {
+			degrees(x, x, 360, ROUNDING);
+		} else {
+			radians(x, x, ROUNDING);
+		}
+		result = to_string(x, OP_RESULT_DIGITS);
+	} else {
+		result = error_result();
+	}
+
+	mpfr_clear(x);
+	return result;
 }
 
-/** @brief Sine of an angle in radians. */
-char *op_sin(const char *argument) {
-	return unary_op(argument, mpfr_sin);
-}
+/** @brief Sine of an angle. */
+char *op_sin(const char *angle, OpAngleUnit unit) { return trig_op(angle, unit, mpfr_sin, mpfr_sinu); }
+
+/** @brief Cosine of an angle. */
+char *op_cos(const char *angle, OpAngleUnit unit) { return trig_op(angle, unit, mpfr_cos, mpfr_cosu); }
+
+/** @brief Tangent of an angle; OP_ERROR where it is undefined (90 degrees). */
+char *op_tan(const char *angle, OpAngleUnit unit) { return trig_op(angle, unit, mpfr_tan, mpfr_tanu); }
 
 char *op_format(const char *number, int digits) {
 	mpfr_t x;
@@ -180,6 +194,4 @@ char *op_format(const char *number, int digits) {
 	return result;
 }
 
-bool op_is_error(const char *result) {
-	return result == NULL || strcmp(result, OP_ERROR) == 0;
-}
+bool op_is_error(const char *result) { return result == NULL || strcmp(result, OP_ERROR) == 0; }
