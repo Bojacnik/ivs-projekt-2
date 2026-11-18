@@ -87,7 +87,7 @@ prof: profiling
 
 ## Documentation (Doxygen) ##
 
-doc-html:
+doc-html: | $(BUILD_DIR)
 	doxygen Doxyfile
 
 # Requires a LaTeX installation; result: build/doc.pdf
