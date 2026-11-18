@@ -10,7 +10,7 @@ DOCS_DIR  = docs
 
 INCLUDE = -L$(LIB_DIR) -I$(LIB_DIR)
 BLIBS   = -lmpfr -lgmp -lm
-FLIBS   = -lraylib
+FLIBS   = -lraylib -lGL -lpthread -ldl -lrt -lX11
 
 BACKEND_SRC   = $(SRC_DIR)/backend/operation.c
 FRONTEND_SRC  = $(SRC_DIR)/frontend/main.c
