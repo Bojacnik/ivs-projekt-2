@@ -1,10 +1,13 @@
 name: Release
 
-# Push a tag matching the version in CMakeLists.txt, e.g.:
+# Either push a tag matching the version in CMakeLists.txt:
 #   git tag v1.0.0 && git push origin v1.0.0
+# or run this workflow manually on master (Actions -> Release -> Run workflow);
+# it then creates the tag v<version from CMakeLists.txt> itself.
 on:
   push:
     tags: ['v*']
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -15,13 +18,27 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Check tag matches project version
+      - name: Determine release tag
+        id: version
         run: |
           version=$(sed -n 's/^project(IVS_Calc VERSION \([0-9.]*\).*/\1/p' CMakeLists.txt)
-          if [ "v$version" != "$GITHUB_REF_NAME" ]; then
+          tag="v$version"
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_NAME" != "$tag" ]; then
             echo "Tag $GITHUB_REF_NAME does not match CMakeLists.txt version $version" >&2
             exit 1
           fi
+          if [ "$GITHUB_EVENT_NAME" = workflow_dispatch ]; then
+            if [ "$GITHUB_REF" != refs/heads/master ]; then
+              echo "Manual releases must be run on master" >&2
+              exit 1
+            fi
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+              echo "Tag $tag already exists; bump the version in CMakeLists.txt first" >&2
+              exit 1
+            fi
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
 
       - name: Install dependencies
         run: |
@@ -41,18 +58,21 @@ jobs:
 
       - name: Extract release notes from CHANGELOG.md
         run: |
-          awk -v ver="${GITHUB_REF_NAME#v}" '
+          awk -v ver="${{ steps.version.outputs.version }}" '
             /^## \[/ { if (found) exit; found = index($0, "[" ver "]") > 0; next }
             found
           ' CHANGELOG.md > build/release-notes.md
           if [ ! -s build/release-notes.md ]; then
-            echo "CHANGELOG.md has no section for ${GITHUB_REF_NAME#v}" >&2
+            echo "CHANGELOG.md has no section for ${{ steps.version.outputs.version }}" >&2
             exit 1
           fi
 
       - name: Publish GitHub release
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
+          name: IVS Calc ${{ steps.version.outputs.version }}
           body_path: build/release-notes.md
           generate_release_notes: true
           files: |
