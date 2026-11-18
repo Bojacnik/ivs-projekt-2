@@ -1,10 +1,50 @@
+/**
+ * @file operation.h
+ * @brief Arbitrary-precision math library used by the calculator.
+ *
+ * Every function takes its operands as decimal strings and returns a newly
+ * allocated string that the caller must free(). On invalid input or an
+ * undefined result (division by zero, even root of a negative number, ...)
+ * the returned string is OP_ERROR.
+ *
+ * Out of memory: the functions return NULL, and op_is_error(NULL) is true,
+ * so callers can treat both cases with one check. NULL operands are accepted
+ * and give an error result, so a failed result can be passed on safely.
+ * Note that MPFR/GMP abort the program if their own internal allocations
+ * fail; that is GMP's documented behaviour and cannot be intercepted.
+ */
 #pragma once
 
-char *op_add(char *addend1, char *addend2);
-char *op_sub(char *minuend, char *subtrahend);
-char *op_mul(char *multiplicand, char *multiplier);
-char *op_div(char *dividend, char *divisor);
-char *op_factorial(char *factor);
-char *op_pow(char *base, char *exponent);
-char *op_root(char *radicand, char *index);
-char *op_sin(char *argument);
+#include <stdbool.h>
+
+/** Value returned (as a new string) when an operation fails. */
+#define OP_ERROR "Err"
+
+/** Number of significant digits in strings returned by the op_* functions. */
+#define OP_RESULT_DIGITS 30
+
+/** Unit of the argument of trigonometric functions. */
+typedef enum {
+	OP_RADIANS,
+	OP_DEGREES,
+} OpAngleUnit;
+
+char *op_add(const char *addend1, const char *addend2);
+char *op_sub(const char *minuend, const char *subtrahend);
+char *op_mul(const char *multiplicand, const char *multiplier);
+char *op_div(const char *dividend, const char *divisor);
+char *op_pow(const char *base, const char *exponent);
+char *op_root(const char *radicand, const char *index);
+char *op_factorial(const char *n);
+char *op_sin(const char *angle, OpAngleUnit unit);
+char *op_cos(const char *angle, OpAngleUnit unit);
+char *op_tan(const char *angle, OpAngleUnit unit);
+
+/**
+ * @brief Re-formats a number to at most @p digits significant digits.
+ * @return New string, OP_ERROR if @p number is not a valid number, NULL if out of memory.
+ */
+char *op_format(const char *number, int digits);
+
+/** @return true if @p result is OP_ERROR or NULL (out of memory). */
+bool op_is_error(const char *result);

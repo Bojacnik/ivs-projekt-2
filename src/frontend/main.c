@@ -1,309 +1,159 @@
+/**
+ * @file main.c
+ * @brief Calculator GUI: draws the calculator and forwards input to it.
+ *
+ * All calculator behaviour lives in src/calculator; this file only maps
+ * buttons and keys to CalcAction values and renders the state.
+ */
+#include <stddef.h>
 
 #include "raylib.h"
-
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 #include "style_jungle.h"
-#include "../backend/operation.h"
 
-enum operation{plus = 1, minus, mult, division, sinus, fact, root, power };
-short errState = 0;
+#include "../calculator/calculator.h"
 
-//----------------------------------------------------------------------------------
-// Controls Functions Declaration
-//----------------------------------------------------------------------------------
+#define SCREEN_WIDTH  376
+#define SCREEN_HEIGHT 528
 
-/*!
-* \brief helper adds number to currNum string and handles edge cases
-* \param currNum array that hold current number you're inputing
-* \param number number you want to input
-* \return void
- */
-void addNumberToCurrNum(char *currNum, char* number){
-    if((strlen(currNum) == 1 && currNum[0] == '0') || errState){
-        currNum[0] = number[0];
-        currNum[1] = '\0';
-        errState = 0;
-        return;
-    }
+#define MARGIN   32
+#define CELL     64  // grid pitch
+#define BUTTON   56  // button size
+#define GRID_TOP 136 // y of the first button row
 
-    strcat(currNum, number);
-    return;
+#define TEXT_SIZE_BUTTON     20
+#define TEXT_SIZE_DISPLAY    28
+#define TEXT_SIZE_EXPRESSION 20
+
+typedef struct {
+	int col, row, width; // grid position, width in cells
+	const char *label;
+	CalcAction action;
+} Button;
+
+static const Button BUTTONS[] = {
+        {0, 0, 2, "Deg/Rad", CALC_TOGGLE_ANGLE_UNIT},
+        {2, 0, 1, "Cos", CALC_COS},
+        {3, 0, 1, "Tan", CALC_TAN},
+        {4, 0, 1, "+/-", CALC_NEGATE},
+
+        {0, 1, 2, "Del", CALC_DELETE},
+        {2, 1, 1, "CE", CALC_CLEAR_ENTRY},
+        {3, 1, 1, "C", CALC_CLEAR},
+        {4, 1, 1, "+", CALC_ADD},
+
+        {0, 2, 1, "Sin", CALC_SIN},
+        {1, 2, 1, "7", CALC_DIGIT_7},
+        {2, 2, 1, "8", CALC_DIGIT_8},
+        {3, 2, 1, "9", CALC_DIGIT_9},
+        {4, 2, 1, "-", CALC_SUB},
+
+        {0, 3, 1, "Root", CALC_ROOT},
+        {1, 3, 1, "4", CALC_DIGIT_4},
+        {2, 3, 1, "5", CALC_DIGIT_5},
+        {3, 3, 1, "6", CALC_DIGIT_6},
+        {4, 3, 1, "*", CALC_MUL},
+
+        {0, 4, 1, "x^y", CALC_POW},
+        {1, 4, 1, "1", CALC_DIGIT_1},
+        {2, 4, 1, "2", CALC_DIGIT_2},
+        {3, 4, 1, "3", CALC_DIGIT_3},
+        {4, 4, 1, "/", CALC_DIV},
+
+        {0, 5, 1, "n!", CALC_FACTORIAL},
+        {1, 5, 1, ".", CALC_DECIMAL},
+        {2, 5, 1, "0", CALC_DIGIT_0},
+        {3, 5, 2, "=", CALC_EQUALS},
+};
+
+static Rectangle button_bounds(const Button *b) {
+	return (Rectangle){
+	        MARGIN + b->col * CELL,
+	        GRID_TOP + b->row * CELL,
+	        b->width * CELL - (CELL - BUTTON),
+	        BUTTON,
+	};
 }
 
-//------------------------------------------------------------------------------------
-// Program main entry point
-//------------------------------------------------------------------------------------
-int main()
-{
-    // Initialization
-    //---------------------------------------------------------------------------------------
-    int screenWidth = 376;
-    int screenHeight = 456;
-    int firstStart = 1;
+static bool ctrl_down(void) { return IsKeyDown(KEY_LEFT_CONTROL) || IsKeyDown(KEY_RIGHT_CONTROL); }
 
-    InitWindow(screenWidth, screenHeight, "Calculator");
+static void handle_keyboard(Calculator *calc) {
+	if (ctrl_down()) {
+		if (IsKeyPressed(KEY_C) && !calc->error && calc->display[0] != '\0') {
+			SetClipboardText(calc->display);
+		}
+		if (IsKeyPressed(KEY_V)) {
+			calc_paste(calc, GetClipboardText());
+		}
+		while (GetCharPressed() != 0) {
+			// drop characters typed together with Ctrl
+		}
+		return;
+	}
 
-    // layout_name: controls initialization
-    //----------------------------------------------------------------------------------
-    bool btnDivPressed = false;
-    bool btnEqlPressed = false;
-    bool btn0Pressed = false;
-    bool btnDecPressed = false;
-    bool btnFacPressed = false;
-    bool btn1Pressed = false;
-    bool btn8Pressed = false;
-    bool btn5Pressed = false;
-    bool btnSinPressed = false;
-    bool btn4Pressed = false;
-    bool btnSqrtPressed = false;
-    bool btnPowPressed = false;
-    bool btn7Pressed = false;
-    bool btn2Pressed = false;
-    bool btnDelPressed = false;
-    bool btn9Pressed = false;
-    bool btnPlusPressed = false;
-    bool btn3Pressed = false;
-    bool btnCEPressed = false;
-    bool btn6Pressed = false;
-    bool btnClearPressed = false;
-    bool btnMinPressed = false;
-    bool btnMulPressed = false;
-
-
-    char currNum[50] = "";
-    char prevNum[50] = "";
-    int oper=0;
-
-    short hasDecimal = 0;
-
-    //----------------------------------------------------------------------------------
-
-    SetTargetFPS(60);
-    //--------------------------------------------------------------------------------------
-
-    // Main game loop
-    while (!WindowShouldClose())    // Detect window close button or ESC key
-    {
-        // Update
-        //----------------------------------------------------------------------------------
-        // TODO: Implement required update logic
-            if(firstStart){
-                GuiLoadStyleJungle();
-                firstStart = 0;
-                GuiSetStyle(TEXTBOX, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT);
-            }
-
-
-        //buttons 1-9 handles input
-            if(btn1Pressed || IsKeyPressed(KEY_KP_1)){ addNumberToCurrNum(currNum, "1"); }
-            if(btn2Pressed || IsKeyPressed(KEY_KP_2)){ addNumberToCurrNum(currNum, "2"); }
-            if(btn3Pressed || IsKeyPressed(KEY_KP_3)){ addNumberToCurrNum(currNum, "3"); }
-            if(btn4Pressed || IsKeyPressed(KEY_KP_4)){ addNumberToCurrNum(currNum, "4"); }
-            if(btn5Pressed || IsKeyPressed(KEY_KP_5)){ addNumberToCurrNum(currNum, "5"); }
-            if(btn6Pressed || IsKeyPressed(KEY_KP_6)){ addNumberToCurrNum(currNum, "6"); }
-            if(btn7Pressed || IsKeyPressed(KEY_KP_7)){ addNumberToCurrNum(currNum, "7"); }
-            if(btn8Pressed || IsKeyPressed(KEY_KP_8)){ addNumberToCurrNum(currNum, "8"); }
-            if(btn9Pressed || IsKeyPressed(KEY_KP_9)){ addNumberToCurrNum(currNum, "9"); }
-            //--
-
-            //zero input special handling
-            if((btn0Pressed || IsKeyPressed(KEY_KP_0))) {
-                if(strlen(currNum) == 0 || errState){
-                    strcpy(currNum, "0");
-                }
-                else if(strlen(currNum) == 1 && currNum[0] == '0'){}
-                else if(strlen(currNum) == 1 && currNum[0] == '-') strcpy(currNum, "0");
-                else{
-                    strcat(currNum, "0");
-                }
-            }
-            //---
-
-            //removes newest char
-            if(btnDelPressed || IsKeyPressed(KEY_BACKSPACE)){
-                if(currNum[strlen(currNum)-1] == '.') hasDecimal = 0;
-                currNum[strlen(currNum)-1] = '\0';
-            }
-            //clears current number
-            if(btnCEPressed){
-                currNum[0] = '\0';
-                hasDecimal = 0;
-            }
-            //clears all numbers
-            if(btnClearPressed || IsKeyPressed(KEY_DELETE)){
-                currNum[0] = '\0';
-                prevNum[0] = '\0';
-                oper = 0;
-                hasDecimal = 0;
-            }
-
-            //functions
-            if(strcmp(currNum, "-")){ //doesnt perform any functions if currNum is only a -
-                if((btnPlusPressed || IsKeyPressed(KEY_KP_ADD)) && strlen(currNum) != 0){ //adding
-                    strcpy(prevNum,currNum);
-                    currNum[0] = '\0';
-                    oper = plus;
-                    hasDecimal = 0;
-                }
-                if((btnMinPressed || IsKeyPressed(KEY_KP_SUBTRACT))){ //subtract
-                    if(strlen(currNum) == 0 || errState){
-                        strcpy(currNum,"-");
-                        errState = 0;
-                    }else if(strlen(currNum) == 1 &&  currNum[0] == '-'){}
-                    else{
-                        strcpy(prevNum,currNum);
-                        currNum[0] = '\0';
-                        oper = minus;
-                        hasDecimal = 0;
-                    }
-                }
-                if((btnDivPressed || IsKeyPressed(KEY_KP_DIVIDE))  && strlen(currNum) != 0){ //divide
-                    strcpy(prevNum,currNum);
-                    currNum[0] = '\0';
-                    oper = division;
-                    hasDecimal = 0;
-                }
-                if((btnMulPressed || IsKeyPressed(KEY_KP_MULTIPLY)) && strlen(currNum) != 0){ //multiply
-                    strcpy(prevNum,currNum);
-                    currNum[0] = '\0';
-                    oper = mult;
-                    hasDecimal = 0;
-                }
-                if(btnFacPressed && strlen(currNum) != 0){ //factorial
-                    oper = fact;
-                    btnEqlPressed = true;
-                }
-                if(btnSinPressed && strlen(currNum) != 0){ //sin func
-                    if(strcmp(currNum, "-")){
-                        oper = sinus;
-                        btnEqlPressed = true;
-                    }
-                }
-                if(btnSqrtPressed && strlen(currNum) != 0){ //root
-                        strcpy(prevNum,currNum);
-                        currNum[0] = '\0';
-                        oper = root;
-                        hasDecimal = 0;
-                }
-                if(btnPowPressed && strlen(currNum) != 0){ //power
-                    strcpy(prevNum,currNum);
-                    currNum[0] = '\0';
-                    oper = power;
-                    hasDecimal = 0;
-                }
-                if(btnDecPressed || IsKeyPressed(KEY_PERIOD ) || IsKeyPressed(KEY_KP_DECIMAL)){ //decimal period
-                    if(!hasDecimal && strlen(currNum) != 0){
-                        strcat(currNum, ".");
-                        hasDecimal = 1;
-                    }
-                }
-            }
-
-
-            //pain and suffering
-            if(btnEqlPressed || IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)){ //calculates final
-                if(oper && strlen(currNum) && !errState){
-                    char* tmpStr;
-                    switch (oper) {
-                        case plus:
-                            tmpStr = op_add(prevNum, currNum);
-                            strcpy(currNum, tmpStr);
-                            break;
-                        case minus:
-                            tmpStr = op_sub(prevNum, currNum);
-                            strcpy(currNum, tmpStr);
-                            break;
-                        case division:
-                            tmpStr = op_div(prevNum, currNum);
-                            strcpy(currNum, tmpStr);
-                            break;
-                        case mult:
-                            tmpStr = op_mul(prevNum, currNum);
-                            strcpy(currNum, tmpStr);
-                            break;
-                        case sinus:
-                            tmpStr = op_sin(currNum);
-                            strcpy(currNum, tmpStr);
-                            break;
-                        case fact:
-                            tmpStr = op_factorial(currNum);
-                            strcpy(currNum, tmpStr);
-                            break;
-                        case root:
-                            tmpStr = op_root(prevNum, currNum);
-                            strcpy(currNum, tmpStr);
-                            break;
-                        case power:
-                            tmpStr = op_pow(prevNum, currNum);
-                            strcpy(currNum, tmpStr);
-                            break;
-                    }
-
-                    if(strstr(currNum, ".") != NULL) hasDecimal = 1;
-                    else hasDecimal = 0;
-
-                    if(strstr(currNum, "Err") != NULL){
-                        errState = 1;
-                    }
-                    free(tmpStr);
-
-                    prevNum[0] = '\0';
-                    oper = 0;
-
-                }
-            }
-
-            //----------------------------------------------------------------------------------
-
-        // Draw
-        //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-        ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
-
-        // raygui: controls drawing
-        //----------------------------------------------------------------------------------
-        GuiSetStyle(DEFAULT, TEXT_SIZE, 20);
-        btnDivPressed = GuiButton((Rectangle){ 288, 304, 56, 56 }, "/");
-        btnEqlPressed = GuiButton((Rectangle){ 224, 368, 120, 56 }, "=");
-        btn0Pressed = GuiButton((Rectangle){ 160, 368, 56, 56 }, "0");
-        btnDecPressed = GuiButton((Rectangle){ 96, 368, 56, 56 }, ".");
-        btnFacPressed = GuiButton((Rectangle){ 32, 368, 56, 56 }, "n!");
-        btn1Pressed = GuiButton((Rectangle){ 96, 304, 56, 56 }, "1");
-        btn8Pressed = GuiButton((Rectangle){ 160, 176, 56, 56 }, "8");
-        btn5Pressed = GuiButton((Rectangle){ 160, 240, 56, 56 }, "5");
-        btnSinPressed = GuiButton((Rectangle){ 32, 176, 56, 56 }, "Sin");
-        btn4Pressed = GuiButton((Rectangle){ 96, 240, 56, 56 }, "4");
-        btnSqrtPressed = GuiButton((Rectangle){ 32, 240, 56, 56 }, "Root");
-        btnPowPressed = GuiButton((Rectangle){ 32, 304, 56, 56 }, "x^y");
-        btn7Pressed = GuiButton((Rectangle){ 96, 176, 56, 56 }, "7");
-        btn2Pressed = GuiButton((Rectangle){ 160, 304, 56, 56 }, "2");
-        btnDelPressed = GuiButton((Rectangle){ 32, 112, 120, 56 }, "Del");
-        btn9Pressed = GuiButton((Rectangle){ 224, 176, 56, 56 }, "9");
-        btnPlusPressed = GuiButton((Rectangle){ 288, 112, 56, 56 }, "+");
-        btn3Pressed = GuiButton((Rectangle){ 224, 304, 56, 56 }, "3");
-        btnCEPressed = GuiButton((Rectangle){ 160, 112, 56, 56 }, "CE");
-        btn6Pressed = GuiButton((Rectangle){ 224, 240, 56, 56 }, "6");
-        btnClearPressed = GuiButton((Rectangle){ 224, 112, 56, 56 }, "C");
-        btnMinPressed = GuiButton((Rectangle){ 288, 176, 56, 56 }, "-");
-        btnMulPressed = GuiButton((Rectangle){ 288, 240, 56, 56 }, "*");
-        GuiSetStyle(DEFAULT, TEXT_SIZE, 28);
-        if (GuiTextBox((Rectangle){ 32, 24, 312, 72 }, currNum, 128, false)){}
-        //----------------------------------------------------------------------------------
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-    }
-    // De-Initialization
-    //--------------------------------------------------------------------------------------
-    CloseWindow();        // Close window and OpenGL context
-    //--------------------------------------------------------------------------------------
-
-    return 0;
+	for (int c = GetCharPressed(); c != 0; c = GetCharPressed()) {
+		calc_handle(calc, calc_action_for_char(c));
+	}
+	if (IsKeyPressed(KEY_ENTER) || IsKeyPressed(KEY_KP_ENTER)) calc_handle(calc, CALC_EQUALS);
+	if (IsKeyPressed(KEY_BACKSPACE)) calc_handle(calc, CALC_DELETE);
+	if (IsKeyPressed(KEY_DELETE) || IsKeyPressed(KEY_ESCAPE)) calc_handle(calc, CALC_CLEAR);
 }
 
-//------------------------------------------------------------------------------------
-// Controls Functions Definitions (local)
-//------------------------------------------------------------------------------------
+/** Draws the text right-aligned, cutting it from the left if it is too wide. */
+static void draw_expression(const char *text, Rectangle bounds) {
+	GuiSetStyle(DEFAULT, TEXT_SIZE, TEXT_SIZE_EXPRESSION);
+	const float spacing = (float)GuiGetStyle(DEFAULT, TEXT_SPACING);
+	while (*text != '\0' && MeasureTextEx(GuiGetFont(), text, TEXT_SIZE_EXPRESSION, spacing).x > bounds.width) {
+		text++;
+	}
+	GuiSetStyle(LABEL, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT);
+	GuiLabel(bounds, text);
+	GuiSetStyle(LABEL, TEXT_ALIGNMENT, TEXT_ALIGN_LEFT);
+}
 
+/** Draws one frame and applies a clicked button. */
+static void draw_frame(Calculator *calc) {
+	BeginDrawing();
+	ClearBackground(GetColor(GuiGetStyle(DEFAULT, BACKGROUND_COLOR)));
+
+	// Display: angle unit + expression line above the current number.
+	const float width = SCREEN_WIDTH - 2 * MARGIN;
+	GuiSetStyle(DEFAULT, TEXT_SIZE, TEXT_SIZE_EXPRESSION);
+	GuiLabel((Rectangle){MARGIN, 16, 40, 24}, calc->angle_unit == OP_DEGREES ? "DEG" : "RAD");
+	draw_expression(calc->expression, (Rectangle){MARGIN + 40, 16, width - 40, 24});
+
+	GuiSetStyle(DEFAULT, TEXT_SIZE, TEXT_SIZE_DISPLAY);
+	GuiTextBox((Rectangle){MARGIN, 44, width, 72}, calc->display, sizeof calc->display, false);
+
+	GuiSetStyle(DEFAULT, TEXT_SIZE, TEXT_SIZE_BUTTON);
+	CalcAction clicked = CALC_NONE;
+	for (size_t i = 0; i < sizeof BUTTONS / sizeof BUTTONS[0]; i++) {
+		const Button *b = &BUTTONS[i];
+		if (GuiButton(button_bounds(b), b->label)) {
+			clicked = b->action;
+		}
+	}
+	calc_handle(calc, clicked);
+
+	EndDrawing();
+}
+
+int main(void) {
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Calculator");
+	SetTargetFPS(60);
+	SetExitKey(KEY_NULL); // Esc clears instead of closing the window
+
+	GuiLoadStyleJungle();
+	GuiSetStyle(TEXTBOX, TEXT_ALIGNMENT, TEXT_ALIGN_RIGHT);
+
+	Calculator calc;
+	calc_init(&calc);
+	while (!WindowShouldClose()) {
+		handle_keyboard(&calc);
+		draw_frame(&calc);
+	}
+
+	CloseWindow();
+	return 0;
+}

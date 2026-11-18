@@ -1,0 +1,12 @@
+# Matches .editorconfig: tabs for indentation, 120 columns.
+BasedOnStyle: LLVM
+UseTab: ForIndentation
+IndentWidth: 4
+TabWidth: 4
+ContinuationIndentWidth: 8
+ColumnLimit: 120
+IndentCaseLabels: true
+AllowShortCaseLabelsOnASingleLine: true
+AllowShortIfStatementsOnASingleLine: WithoutElse
+AlignConsecutiveMacros: Consecutive
+SortIncludes: Never
